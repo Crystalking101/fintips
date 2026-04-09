@@ -842,7 +842,7 @@ Give them 3 short, specific, actionable tips tailored exactly to their situation
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: 500, temperature: 0.8 },
+            generationConfig: { maxOutputTokens: 1000, temperature: 0.8 },
           }),
         }
       );
