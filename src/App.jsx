@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 // ─── GEMINI CONFIG ────────────────────────────────────────────────────────────
 // In Vite: add VITE_GEMINI_API_KEY to your .env file
-const GEMINI_API_KEY = (typeof import.meta !== "undefined" && import.meta.env?.VITE_GEMINI_API_KEY) || "";
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // ─── SUPABASE CONFIG ──────────────────────────────────────────────────────────
 // In Vite: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file
