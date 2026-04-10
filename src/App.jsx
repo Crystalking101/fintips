@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 // ─── GEMINI CONFIG ────────────────────────────────────────────────────────────
 // In Vite: add VITE_GEMINI_API_KEY to your .env file
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_KEY = "AIzaSyB-_NWYe5hdkvMuJd93tm3kBggV3YHWz8c";
 
 // ─── SUPABASE CONFIG ──────────────────────────────────────────────────────────
 // In Vite: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file
@@ -828,12 +828,12 @@ export default function FinTips() {
     setSubmitForm(f => ({ ...f, category: categoryMap[answers.goal] || "General" }));
     go("loading");
     await new Promise(r => setTimeout(r, 100));
-    const prompt = `You are a sharp, friendly money coach. Here is what this person shared:
+    const prompt = `You are a direct, no-nonsense money coach. Here is what this person shared:
 - Goal: ${answers.goal}
 - Where they are: ${answers.startingPoint}
 - Biggest challenge: ${answers.challenge}
 
-Give them 3 short, specific, actionable tips tailored exactly to their situation. Each tip should be 1-2 sentences max with a real number (dollar amount, timeframe, or percentage). Address their challenge directly. No fluff, no long explanations. Direct and encouraging. Format as 3 plain paragraphs, no bullet points or headers.`;
+Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specific — real numbers only (dollars, %, timeframes). No intros, no fluff, no "great question!", no encouragement filler. Just the advice. Always complete every sentence fully. Plain paragraphs, no bullet points or headers.`;
     try {
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
@@ -842,7 +842,7 @@ Give them 3 short, specific, actionable tips tailored exactly to their situation
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: 1000, temperature: 0.8 },
+            generationConfig: { maxOutputTokens: 1500, temperature: 0.8 },
           }),
         }
       );
