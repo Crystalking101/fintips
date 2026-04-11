@@ -567,26 +567,67 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
     const canvas = document.createElement("canvas");
     canvas.width = 1080; canvas.height = 1080;
     const ctx = canvas.getContext("2d");
+
+    // Cream background
     ctx.fillStyle = "#FAF7F1";
     ctx.fillRect(0, 0, 1080, 1080);
-    ctx.fillStyle = "#1E3F2F";
+
+    // White card
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(80, 80, 920, 920);
-    ctx.fillStyle = "#FAF7F1";
-    ctx.font = "bold 48px sans-serif";
+
+    // Forest green border
+    ctx.strokeStyle = "#1E3F2F";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(80, 80, 920, 920);
+
+    // FinTips app name
+    ctx.fillStyle = "#1E3F2F";
+    ctx.font = "bold 36px Georgia, serif";
     ctx.textAlign = "center";
-    ctx.fillText("FinTips", 540, 200);
-    ctx.font = "32px sans-serif";
-    const words = shareText.split(" ");
-    let line = "", y = 320;
+    ctx.fillText("FinTips", 540, 160);
+
+    // Divider line
+    ctx.strokeStyle = "rgba(30,63,47,0.15)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(120, 185);
+    ctx.lineTo(960, 185);
+    ctx.stroke();
+
+    // Tip text
+    ctx.fillStyle = "#1A1A18";
+    ctx.font = "28px Georgia, serif";
+    ctx.textAlign = "center";
+    const maxWidth = 820;
+    const lineHeight = 46;
+    const words = text.split(" ");
+    let line = "";
+    let y = 280;
     for (const word of words) {
       const test = line + word + " ";
-      if (ctx.measureText(test).width > 800 && line) { ctx.fillText(line.trim(), 540, y); line = word + " "; y += 50; }
-      else line = test;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        ctx.fillText(line.trim(), 540, y);
+        line = word + " ";
+        y += lineHeight;
+      } else line = test;
     }
     if (line) ctx.fillText(line.trim(), 540, y);
-    ctx.fillStyle = "#C9A84C";
-    ctx.font = "bold 28px sans-serif";
-    ctx.fillText("fintips.co", 540, 920);
+
+    // Divider line bottom
+    ctx.strokeStyle = "rgba(30,63,47,0.15)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(120, 900);
+    ctx.lineTo(960, 900);
+    ctx.stroke();
+
+    // fintips.vercel.app
+    ctx.fillStyle = "#1E3F2F";
+    ctx.font = "bold 24px Georgia, serif";
+    ctx.textAlign = "center";
+    ctx.fillText("fintips.vercel.app", 540, 960);
+
     const link = document.createElement("a");
     link.download = "fintips-advice.png";
     link.href = canvas.toDataURL();
