@@ -638,7 +638,7 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
       </div>
 
       {open && (
-        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
+        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
           <div onClick={e => e.stopPropagation()} style={{ background: "#FAF7F1", borderRadius: 0, padding: "28px 24px 40px", width: "100%", maxWidth: 560, animation: "sheetUp 0.32s cubic-bezier(0.22,1,0.36,1)" }}>
             <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 24, fontWeight: 400, color: "var(--forest)", marginBottom: 10 }}>Share this {isAdvice ? "advice" : "tip"}</p>
             <p style={{ fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginBottom: 24, fontStyle: "italic" }}>
@@ -674,7 +674,7 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
       )}
 
       {reportOpen && (
-        <div onClick={() => setReportOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
+        <div onClick={() => setReportOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
           <div onClick={e => e.stopPropagation()} style={{ background: "#FAF7F1", borderRadius: 0, padding: "28px 24px 40px", width: "100%", maxWidth: 560, animation: "sheetUp 0.32s cubic-bezier(0.22,1,0.36,1)" }}>
             <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 24, fontWeight: 400, color: "var(--forest)", marginBottom: 6 }}>Report this content</p>
             <p style={{ fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", marginBottom: 24 }}>Why are you reporting this?</p>
@@ -1047,7 +1047,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
           {screen === "tips" && (
             <div className="sg">
               <div>
-                <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 42, fontWeight: 400, color: "var(--forest)", marginBottom: 20, letterSpacing: -0.5, textAlign: "center" }}>FinTips</h2>
+                <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 42, fontWeight: 400, color: "var(--forest)", marginBottom: 20, letterSpacing: -0.5, textAlign: "center" }}>Financial Facts</h2>
               </div>
               <div style={{ perspective: "1000px" }}>
                 <div key={tipKey} className="tip-card card-in" onMouseDown={drag} onMouseUp={drop} onTouchStart={drag} onTouchEnd={drop}>
@@ -1058,9 +1058,11 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                   </div>
                 </div>
               </div>
-              <ShareSheet text={CURATED_TIPS[tipIndex].tip} label={CURATED_TIPS[tipIndex].category} />
+              <div style={{ position: "relative", zIndex: 10 }}>
+                <ShareSheet text={CURATED_TIPS[tipIndex].tip} label={CURATED_TIPS[tipIndex].category} />
+              </div>
 
-              <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+              <div style={{ display: "flex", gap: 10, marginTop: 40 }}>
                 <button onClick={() => go("quiz3")} style={{
                   flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
                   background: "#1E3F2F", color: "#FAF7F1", textAlign: "center",
