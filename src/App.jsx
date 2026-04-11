@@ -1058,11 +1058,11 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                   </div>
                 </div>
               </div>
-              <div style={{ position: "relative", zIndex: 10 }}>
+              <div style={{ position: "relative", zIndex: 10, marginTop: 28 }}>
                 <ShareSheet text={CURATED_TIPS[tipIndex].tip} label={CURATED_TIPS[tipIndex].category} />
               </div>
 
-              <div style={{ display: "flex", gap: 10, marginTop: 40 }}>
+              <div style={{ display: "flex", gap: 10, marginTop: 60 }}>
                 <button onClick={() => go("quiz3")} style={{
                   flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
                   background: "#1E3F2F", color: "#FAF7F1", textAlign: "center",
