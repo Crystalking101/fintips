@@ -883,7 +883,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: 1500, temperature: 0.8 },
+            generationConfig: { maxOutputTokens: 1500 },
           }),
         }
       );
