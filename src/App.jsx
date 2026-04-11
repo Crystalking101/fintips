@@ -559,46 +559,139 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
     const canvas = document.createElement("canvas");
     canvas.width = 1080; canvas.height = 1080;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#FAF7F1";
-    ctx.fillRect(0, 0, 1080, 1080);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(60, 60, 960, 960);
-    ctx.strokeStyle = "#1E3F2F";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(60, 60, 960, 960);
-    ctx.fillStyle = "#1E3F2F";
-    ctx.font = "italic bold 52px Georgia, 'Times New Roman', serif";
-    ctx.textAlign = "center";
-    ctx.fillText("FinTips", 540, 160);
-    ctx.fillStyle = "#1A1A18";
-    ctx.font = "28px 'Arial', sans-serif";
-    ctx.textAlign = "center";
-    const maxWidth = 840;
-    const lineHeight = 48;
-    const words = text.split(" ");
-    let line = "";
-    let y = 260;
-    for (const word of words) {
-      const test = line + word + " ";
-      if (ctx.measureText(test).width > maxWidth && line) {
-        ctx.fillText(line.trim(), 540, y);
-        line = word + " ";
-        y += lineHeight;
-      } else line = test;
+
+    if (isAdvice) {
+      // ── YOUR TIPS style: white card on cream bg, dark text (matches the page) ──
+
+      // Cream background
+      ctx.fillStyle = "#FAF7F1";
+      ctx.fillRect(0, 0, 1080, 1080);
+
+      // White card with subtle border
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(60, 80, 960, 880);
+      ctx.strokeStyle = "rgba(30,63,47,0.11)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(60, 80, 960, 880);
+
+      // "Your Tips" title in forest green at top of card
+      ctx.fillStyle = "#1E3F2F";
+      ctx.font = "italic 56px Georgia, serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Your Tips", 540, 180);
+
+      // Thin divider under title
+      ctx.strokeStyle = "rgba(30,63,47,0.11)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(120, 210);
+      ctx.lineTo(960, 210);
+      ctx.stroke();
+
+      // Advice text — dark ink, centered, wrapping
+      ctx.fillStyle = "#1A1A18";
+      ctx.font = "28px Arial, sans-serif";
+      ctx.textAlign = "center";
+      const maxWidth = 820;
+      const lineHeight = 52;
+      const paragraphs = text.split("\n\n").filter(Boolean);
+      let y = 290;
+      for (const para of paragraphs) {
+        const words = para.split(" ");
+        let line = "";
+        for (const word of words) {
+          const test = line + word + " ";
+          if (ctx.measureText(test).width > maxWidth && line) {
+            ctx.fillText(line.trim(), 540, y);
+            line = word + " ";
+            y += lineHeight;
+          } else line = test;
+        }
+        if (line) { ctx.fillText(line.trim(), 540, y); y += lineHeight; }
+        y += 24; // paragraph gap
+      }
+
+      // Bottom divider
+      ctx.strokeStyle = "rgba(30,63,47,0.11)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(120, 900);
+      ctx.lineTo(960, 900);
+      ctx.stroke();
+
+      // FinTips URL
+      ctx.fillStyle = "#1E3F2F";
+      ctx.font = "bold 22px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("fintips.vercel.app", 540, 940);
+
+    } else {
+      // ── FINANCIAL FACTS style: green card, cream text, gold accents ──
+
+      // Cream outer background
+      ctx.fillStyle = "#FAF7F1";
+      ctx.fillRect(0, 0, 1080, 1080);
+
+      // Dark green card
+      const cardX = 60, cardY = 60, cardW = 960, cardH = 960;
+      ctx.fillStyle = "#1E3F2F";
+      ctx.fillRect(cardX, cardY, cardW, cardH);
+
+      // Subtle circle decorations
+      ctx.save();
+      ctx.globalAlpha = 0.06;
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(1010, 10, 200, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#C9A84C";
+      ctx.beginPath();
+      ctx.arc(30, 1050, 140, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Category label (gold, uppercase)
+      ctx.fillStyle = "#C9A84C";
+      ctx.font = "bold 20px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(label ? label.toUpperCase() : "", 540, 200);
+
+      // Tip text (cream)
+      ctx.fillStyle = "rgba(250,247,241,0.94)";
+      ctx.font = "32px Arial, sans-serif";
+      ctx.textAlign = "center";
+      const maxWidth2 = 820;
+      const lineHeight2 = 54;
+      const words2 = text.split(" ");
+      let line2 = "";
+      let y2 = 310;
+      for (const word of words2) {
+        const test = line2 + word + " ";
+        if (ctx.measureText(test).width > maxWidth2 && line2) {
+          ctx.fillText(line2.trim(), 540, y2);
+          line2 = word + " ";
+          y2 += lineHeight2;
+        } else line2 = test;
+      }
+      if (line2) ctx.fillText(line2.trim(), 540, y2);
+
+      // Fact box
+      const factBoxY = y2 + 70;
+      const factBoxH = 130;
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      ctx.fillRect(cardX + 60, factBoxY, cardW - 120, factBoxH);
+      ctx.fillStyle = "#C9A84C";
+      ctx.fillRect(cardX + 60, factBoxY, 5, factBoxH);
+
+      // FinTips URL
+      ctx.fillStyle = "rgba(212,236,216,0.6)";
+      ctx.font = "bold 20px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("fintips.vercel.app", 540, cardY + cardH - 40);
     }
-    if (line) ctx.fillText(line.trim(), 540, y);
-    ctx.strokeStyle = "rgba(30,63,47,0.15)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(100, 940);
-    ctx.lineTo(980, 940);
-    ctx.stroke();
-    ctx.fillStyle = "#1E3F2F";
-    ctx.font = "bold 22px Arial, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("fintips.vercel.app", 540, 985);
+
     const link = document.createElement("a");
-    link.download = "fintips-advice.png";
+    link.download = "fintips-tip.png";
     link.href = canvas.toDataURL();
     link.click();
     setOpen(false);
