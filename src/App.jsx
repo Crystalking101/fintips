@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 // ─── GEMINI CONFIG ────────────────────────────────────────────────────────────
 // In Vite: add VITE_GEMINI_API_KEY to your .env file
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_KEY = "AIzaSyB-_NWYe5hdkvMuJd93tm3kBggV3YHWz8c";
 
 // ─── SUPABASE CONFIG ──────────────────────────────────────────────────────────
 // In Vite: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file
@@ -574,36 +574,28 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
 
     // White card
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(80, 80, 920, 920);
+    ctx.fillRect(60, 60, 960, 960);
 
     // Forest green border
     ctx.strokeStyle = "#1E3F2F";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(80, 80, 920, 920);
+    ctx.lineWidth = 3;
+    ctx.strokeRect(60, 60, 960, 960);
 
-    // FinTips app name
+    // FinTips title — serif style
     ctx.fillStyle = "#1E3F2F";
-    ctx.font = "bold 36px Georgia, serif";
+    ctx.font = "italic bold 52px Georgia, 'Times New Roman', serif";
     ctx.textAlign = "center";
     ctx.fillText("FinTips", 540, 160);
 
-    // Divider line
-    ctx.strokeStyle = "rgba(30,63,47,0.15)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(120, 185);
-    ctx.lineTo(960, 185);
-    ctx.stroke();
-
-    // Tip text
+    // Tip text — clean sans-serif matching app body
     ctx.fillStyle = "#1A1A18";
-    ctx.font = "28px Georgia, serif";
+    ctx.font = "28px 'Arial', sans-serif";
     ctx.textAlign = "center";
-    const maxWidth = 820;
-    const lineHeight = 46;
+    const maxWidth = 840;
+    const lineHeight = 48;
     const words = text.split(" ");
     let line = "";
-    let y = 280;
+    let y = 260;
     for (const word of words) {
       const test = line + word + " ";
       if (ctx.measureText(test).width > maxWidth && line) {
@@ -614,19 +606,19 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
     }
     if (line) ctx.fillText(line.trim(), 540, y);
 
-    // Divider line bottom
+    // Bottom divider
     ctx.strokeStyle = "rgba(30,63,47,0.15)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(120, 900);
-    ctx.lineTo(960, 900);
+    ctx.moveTo(100, 940);
+    ctx.lineTo(980, 940);
     ctx.stroke();
 
     // fintips.vercel.app
     ctx.fillStyle = "#1E3F2F";
-    ctx.font = "bold 24px Georgia, serif";
+    ctx.font = "bold 22px Arial, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("fintips.vercel.app", 540, 960);
+    ctx.fillText("fintips.vercel.app", 540, 985);
 
     const link = document.createElement("a");
     link.download = "fintips-advice.png";
@@ -877,7 +869,7 @@ export default function FinTips() {
 Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specific — real numbers only (dollars, %, timeframes). No intros, no fluff, no "great question!", no encouragement filler. Just the advice. Always complete every sentence fully. Plain paragraphs, no bullet points or headers.`;
     try {
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
