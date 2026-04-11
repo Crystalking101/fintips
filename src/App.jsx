@@ -504,7 +504,7 @@ function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
 }
 
 // ─── SHARE SHEET ─────────────────────────────────────────────────────────────
-function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
+function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = false }) {
   const [open, setOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reported, setReported] = useState(false);
@@ -680,8 +680,28 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
       const factBoxH = 130;
       ctx.fillStyle = "rgba(255,255,255,0.06)";
       ctx.fillRect(cardX + 60, factBoxY, cardW - 120, factBoxH);
+      // Gold left border
       ctx.fillStyle = "#C9A84C";
       ctx.fillRect(cardX + 60, factBoxY, 5, factBoxH);
+      // Fact text inside box
+      if (fact) {
+        ctx.fillStyle = "rgba(212,236,216,0.82)";
+        ctx.font = "22px Arial, sans-serif";
+        ctx.textAlign = "left";
+        const factMaxWidth = cardW - 180;
+        const factWords = fact.split(" ");
+        let factLine = "";
+        let factY = factBoxY + 44;
+        for (const word of factWords) {
+          const test = factLine + word + " ";
+          if (ctx.measureText(test).width > factMaxWidth && factLine) {
+            ctx.fillText(factLine.trim(), cardX + 90, factY);
+            factLine = word + " ";
+            factY += 36;
+          } else factLine = test;
+        }
+        if (factLine) ctx.fillText(factLine.trim(), cardX + 90, factY);
+      }
 
       // FinTips URL
       ctx.fillStyle = "rgba(212,236,216,0.6)";
@@ -1152,7 +1172,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               </div>
               <div style={{ position: "relative", zIndex: 10, marginTop: 28 }}>
-                <ShareSheet text={CURATED_TIPS[tipIndex].tip} label={CURATED_TIPS[tipIndex].category} />
+                <ShareSheet text={CURATED_TIPS[tipIndex].tip} label={CURATED_TIPS[tipIndex].category} fact={CURATED_TIPS[tipIndex].fact} />
               </div>
 
               <div style={{ display: "flex", gap: 10, marginTop: 60 }}>
