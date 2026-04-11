@@ -26,10 +26,6 @@ async function supabaseFetch(path, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
-// Helper to extract project ref from either URL format
-// Old: https://xxxx.supabase.co
-// New: works the same — publishable key is just passed as apikey header
-
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const ALL_TIPS = [
   { id: "c1", category: "Credit", tip: "Paying just $25 extra on your minimum credit card payment each month can save you hundreds in interest over time.", fact: "Interest compounds daily on most cards." },
@@ -442,7 +438,7 @@ const CSS = `
   .spinner { width:30px; height:30px; border:2.5px solid rgba(30,63,47,0.12); border-top-color:var(--forest); border-radius:50%; animation:spinSm 0.8s linear infinite; margin:0 auto; }
 `;
 
-// ─── HOME SCREEN (formerly splash) ───────────────────────────────────────────
+// ─── HOME SCREEN ─────────────────────────────────────────────────────────────
 function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
   const particles = Array.from({ length: 18 }, (_, i) => ({
     id: i,
@@ -464,7 +460,6 @@ function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "#FAF7F1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", zIndex: 1000, overflow: "hidden", padding: "0 24px 48px" }}>
-      {/* Money particles */}
       {particles.map(p => (
         <div key={p.id} className="money-particle" style={{ left: p.left, top: "-60px", fontSize: p.size, animationDuration: p.duration, animationDelay: p.delay }}>{p.symbol}</div>
       ))}
@@ -472,7 +467,6 @@ function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
         <div key={c.id} className="money-coin" style={{ top: c.top, left: "-80px", fontSize: c.size, animationDuration: c.duration, animationDelay: c.delay }}>{c.symbol}</div>
       ))}
 
-      {/* Top — headline centered */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", position: "relative", zIndex: 2 }}>
         <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 42, fontWeight: 400, color: "var(--forest)", marginBottom: 12, letterSpacing: -0.5 }}>FinTips</p>
         <h1 className="splash-h1" style={{ marginBottom: 0 }}>
@@ -483,7 +477,6 @@ function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
         </p>
       </div>
 
-      {/* Bottom — 3 action cards */}
       <div style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "row", gap: 10, position: "relative", zIndex: 2 }}>
         {[
           { label: "Get Advice", fn: onGetAdvice, primary: true },
@@ -531,7 +524,6 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
   function handleReport(reason) {
     setReported(true);
     setReportOpen(false);
-    // Store report in Supabase silently
     try {
       supabaseFetch("/reports", { method: "POST", prefer: "return=minimal", body: JSON.stringify({ tip_text: text.slice(0, 200), reason, reported_at: new Date().toISOString() }) });
     } catch { /* silent */ }
@@ -567,27 +559,17 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
     const canvas = document.createElement("canvas");
     canvas.width = 1080; canvas.height = 1080;
     const ctx = canvas.getContext("2d");
-
-    // Cream background
     ctx.fillStyle = "#FAF7F1";
     ctx.fillRect(0, 0, 1080, 1080);
-
-    // White card
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(60, 60, 960, 960);
-
-    // Forest green border
     ctx.strokeStyle = "#1E3F2F";
     ctx.lineWidth = 3;
     ctx.strokeRect(60, 60, 960, 960);
-
-    // FinTips title — serif style
     ctx.fillStyle = "#1E3F2F";
     ctx.font = "italic bold 52px Georgia, 'Times New Roman', serif";
     ctx.textAlign = "center";
     ctx.fillText("FinTips", 540, 160);
-
-    // Tip text — clean sans-serif matching app body
     ctx.fillStyle = "#1A1A18";
     ctx.font = "28px 'Arial', sans-serif";
     ctx.textAlign = "center";
@@ -605,21 +587,16 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
       } else line = test;
     }
     if (line) ctx.fillText(line.trim(), 540, y);
-
-    // Bottom divider
     ctx.strokeStyle = "rgba(30,63,47,0.15)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(100, 940);
     ctx.lineTo(980, 940);
     ctx.stroke();
-
-    // fintips.vercel.app
     ctx.fillStyle = "#1E3F2F";
     ctx.font = "bold 22px Arial, sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("fintips.vercel.app", 540, 985);
-
     const link = document.createElement("a");
     link.download = "fintips-advice.png";
     link.href = canvas.toDataURL();
@@ -629,7 +606,6 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
 
   return (
     <>
-      {/* Heart + Share + Report row */}
       <div style={{ display: "flex", alignItems: "center", gap: 20, padding: "0", marginTop: 0 }}>
         {!hideHeart && (
           <button onClick={handleLike} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", padding: 0, transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)" }}
@@ -642,7 +618,6 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
           </button>
         )}
 
-        {/* Share button */}
         <button onClick={() => setOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", padding: 0, transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)" }}
           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
           onMouseLeave={e => e.currentTarget.style.transform = ""}>
@@ -652,7 +627,6 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
           <span style={{ fontFamily: "var(--font-d)", fontSize: 14, fontWeight: 600, color: "var(--forest)" }}>Share</span>
         </button>
 
-        {/* Report button */}
         <button onClick={() => !reported && setReportOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: reported ? "default" : "pointer", padding: 0, transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)", opacity: reported ? 0.4 : 1 }}
           onMouseEnter={e => { if (!reported) e.currentTarget.style.transform = "scale(1.1)"; }}
           onMouseLeave={e => e.currentTarget.style.transform = ""}>
@@ -663,7 +637,6 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
         </button>
       </div>
 
-      {/* Share bottom sheet */}
       {open && (
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
           <div onClick={e => e.stopPropagation()} style={{ background: "#FAF7F1", borderRadius: 0, padding: "28px 24px 40px", width: "100%", maxWidth: 560, animation: "sheetUp 0.32s cubic-bezier(0.22,1,0.36,1)" }}>
@@ -700,7 +673,6 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
         </div>
       )}
 
-      {/* Report bottom sheet */}
       {reportOpen && (
         <div onClick={() => setReportOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
           <div onClick={e => e.stopPropagation()} style={{ background: "#FAF7F1", borderRadius: 0, padding: "28px 24px 40px", width: "100%", maxWidth: 560, animation: "sheetUp 0.32s cubic-bezier(0.22,1,0.36,1)" }}>
@@ -741,7 +713,6 @@ export default function FinTips() {
   const [votedIds, setVotedIds] = useState(new Set());
   const [loadingCommunity, setLoadingCommunity] = useState(false);
   const [showSubmit, setShowSubmit] = useState(false);
-  // ─── ADMIN STATE ───────────────────────────────────────────────────────────
   const ADMIN_PASSWORD = "fintips2026admin";
   const ADMIN_URL_KEY = "admin-fintips";
   const [showAdmin, setShowAdmin] = useState(() => window.location.hash === `#${ADMIN_URL_KEY}`);
@@ -847,11 +818,9 @@ export default function FinTips() {
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 3000); }
 
-  async function getAdvice() { await getAdviceWithAnswers(quizAnswers); }
-
+  // ─── UPDATED: getAdviceWithAnswers with retry logic and fallback ──────────
   async function getAdviceWithAnswers(answers) {
     setAdvice("");
-    // Auto-tag category from goal answer
     const categoryMap = {
       "Paying off debt": "Debt",
       "Building my savings": "Savings",
@@ -861,29 +830,67 @@ export default function FinTips() {
     setSubmitForm(f => ({ ...f, category: categoryMap[answers.goal] || "General" }));
     go("loading");
     await new Promise(r => setTimeout(r, 100));
+
     const prompt = `You are a direct, no-nonsense money coach. Here is what this person shared:
 - Goal: ${answers.goal}
 - Where they are: ${answers.startingPoint}
 - Biggest challenge: ${answers.challenge}
 
 Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specific — real numbers only (dollars, %, timeframes). No intros, no fluff, no "great question!", no encouragement filler. Just the advice. Always complete every sentence fully. Plain paragraphs, no bullet points or headers.`;
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: 1500, temperature: 0.7 },
-          }),
+
+    // This is the backup advice shown if the AI is unavailable
+    const FALLBACK = "Start by automating at least $25 per paycheck directly into a separate savings account — you'll save $650 a year without thinking about it.\n\nIf you have credit card debt, call your card issuer and ask for a lower APR. About 70% of people who ask get one, and even 3% less saves you hundreds annually.\n\nTrack every expense for the next 30 days. Most people find $100–$300 in forgotten subscriptions or habits they can redirect toward their actual goal.";
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { maxOutputTokens: 1500, temperature: 0.7 },
+            }),
+          }
+        );
+
+        // 429 = "too many requests" — wait and retry
+        if (res.status === 429) {
+          if (attempt < 2) {
+            await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
+            continue;
+          }
+          // All retries used up — show backup tips with a message
+          setAdvice(FALLBACK);
+          go("advice");
+          showToast("⚠️ AI is busy — showing a backup tip");
+          return;
         }
-      );
-      const data = await res.json();
-      setAdvice(data.candidates?.[0]?.content?.parts?.[0]?.text || "");
-    } catch { setAdvice("Start small and stay consistent. Even $25 a week adds up to $1,300 a year. The best financial decision is always the one you will actually stick with."); }
-    go("advice");
+
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!text) throw new Error("Empty response from Gemini");
+
+        setAdvice(text);
+        go("advice");
+        return;
+
+      } catch (err) {
+        console.error(`Gemini attempt ${attempt + 1} failed:`, err);
+        if (attempt === 2) {
+          setAdvice(FALLBACK);
+          go("advice");
+          showToast("Couldn't reach AI — showing a backup tip");
+        }
+      }
+    }
   }
+
+  async function getAdvice() { await getAdviceWithAnswers(quizAnswers); }
 
   function changeTip(i) { setTipIndex(i); setTipKey(k => k + 1); }
   const drag = e => setDragStart(e.clientX ?? e.touches?.[0]?.clientX);
@@ -895,8 +902,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
     if (diff < -50 && tipIndex > 0) changeTip(tipIndex - 1);
     setDragStart(null);
   };
-
-  const isCoach = ["home","quiz3","loading","advice"].includes(screen);
 
   return (
     <div className="app">
@@ -912,8 +917,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
 
       <main className="main" style={{ marginLeft: "auto", marginRight: "auto" }}>
         <div key={screenKey} className={dir === "right" ? "enter-right" : "enter-left"}>
-
-          {/* LOADING — rendered outside transition wrapper, see below */}
 
           {/* ADVICE */}
           {screen === "advice" && advice && (
@@ -967,14 +970,12 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
           {/* 3 QUICK QUESTIONS */}
           {screen === "quiz3" && (
             <div className="sg">
-              {/* Progress indicator */}
               <div style={{ display: "flex", gap: 6, marginBottom: 32 }}>
                 {[0,1,2].map(i => (
                   <div key={i} style={{ flex: 1, height: 3, background: i <= quizStep ? "#1E3F2F" : "rgba(30,63,47,0.15)", transition: "background 0.3s" }} />
                 ))}
               </div>
 
-              {/* Q1 — Goal */}
               {quizStep === 0 && (
                 <div key="q1" className="sg">
                   <div>
@@ -993,7 +994,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               )}
 
-              {/* Q2 — Starting Point */}
               {quizStep === 1 && (
                 <div key="q2" className="sg">
                   <div>
@@ -1012,7 +1012,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               )}
 
-              {/* Q3 — Biggest Challenge */}
               {quizStep === 2 && (
                 <div key="q3" className="sg">
                   <div>
@@ -1035,7 +1034,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               )}
 
-              {/* Back button */}
               <button onClick={() => quizStep === 0 ? setShowSplash(true) : setQuizStep(s => s - 1)}
                 style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", padding: 0, marginTop: 8, transition: "color 0.2s" }}
                 onMouseEnter={e => e.currentTarget.style.color = "var(--forest)"}
@@ -1062,7 +1060,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
               </div>
               <ShareSheet text={CURATED_TIPS[tipIndex].tip} label={CURATED_TIPS[tipIndex].category} />
 
-              {/* Bottom nav buttons */}
               <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
                 <button onClick={() => go("quiz3")} style={{
                   flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
@@ -1122,7 +1119,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                   />
                 </div>
 
-                {/* Category tags */}
                 <div style={{ marginBottom: 20 }}>
                   <label className="form-label" style={{ fontSize: 15, marginBottom: 10 }}>Category</label>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -1157,7 +1153,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               </div>
 
-              {/* Bottom buttons — smaller */}
               <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
                 <button onClick={goHome} style={{
                   flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
@@ -1198,16 +1193,14 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
               </div>
             </div>
           )}
+
           {/* COMMUNITY */}
           {screen === "community" && (
             <div className="sg">
-
-              {/* Headline */}
               <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 26, fontWeight: 400, color: "var(--forest)", textAlign: "center", marginBottom: 24, lineHeight: 1.3 }}>
                 Money advice made for you by you
               </h2>
 
-              {/* Top action buttons */}
               <div style={{ display: "flex", gap: 10, marginBottom: 32 }}>
                 <button onClick={() => go("quiz3")} style={{
                   flex: 1, padding: "16px 8px", borderRadius: 0, cursor: "pointer",
@@ -1231,7 +1224,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </button>
               </div>
 
-              {/* Category filter */}
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {["All", "Debt", "Savings", "Investing", "Credit", "General"].map(cat => (
@@ -1249,7 +1241,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               </div>
 
-              {/* Sort */}
               <div style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
                 <p style={{ fontFamily: "var(--font-b)", fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>Sort:</p>
                 {["Most loved", "Newest"].map(s => (
@@ -1266,7 +1257,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 ))}
               </div>
 
-              {/* Tips list */}
               {loadingCommunity ? (
                 <div style={{ padding: "56px 0", textAlign: "center" }}>
                   <div className="spinner" />
@@ -1296,9 +1286,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                       {tip.author_name && tip.author_name !== "Anonymous" && (
                         <p style={{ fontSize: 12, color: "#1E3F2F", marginTop: 8, textAlign: "center", fontWeight: 600 }}>{tip.author_name}</p>
                       )}
-                      {/* Like + Share row */}
                       <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
-                        {/* Heart / upvote */}
                         <button onClick={() => upvote(tip)} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1, transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)" }}
                           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
                           onMouseLeave={e => e.currentTarget.style.transform = ""}>
@@ -1307,7 +1295,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                           </svg>
                           <span style={{ fontFamily: "var(--font-d)", fontSize: 14, fontWeight: 600, color: "var(--forest)", lineHeight: 1 }}>{tip.vote_count || 0}</span>
                         </button>
-                        {/* Share button — opens sheet */}
                         <ShareSheet text={tip.tip_text} label={tip.category} hideHeart={true} />
                       </div>
                     </div>
@@ -1315,7 +1302,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               )}
 
-              {/* Back to home */}
               <div style={{ marginTop: 32, textAlign: "center" }}>
                 <button onClick={goHome} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", transition: "color 0.2s" }}
                   onMouseEnter={e => e.currentTarget.style.color = "var(--forest)"}
@@ -1323,17 +1309,15 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                   ← Back to home
                 </button>
               </div>
-
             </div>
           )}
 
         </div>
       </main>
 
-      {/* LOADING SCREEN — fixed fullscreen, outside transition wrapper */}
+      {/* LOADING SCREEN */}
       {screen === "loading" && (
         <div style={{ position: "fixed", inset: 0, background: "var(--cream)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 50, overflow: "hidden", animation: "fadeIn 0.3s ease" }}>
-          {/* Falling money */}
           {Array.from({ length: 18 }, (_, i) => (
             <div key={`lp-${i}`} className="money-particle" style={{
               left: `${(i * 5.5 + Math.sin(i) * 8) % 95}%`,
@@ -1343,7 +1327,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
               animationDelay: `${(i * 0.4) % 5}s`,
             }}>{MONEY_SYMBOLS[i % MONEY_SYMBOLS.length]}</div>
           ))}
-          {/* Horizontal coins */}
           {Array.from({ length: 8 }, (_, i) => (
             <div key={`lc-${i}`} className="money-coin" style={{
               top: `${15 + i * 10}%`,
@@ -1353,7 +1336,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
               animationDelay: `${i * 0.7}s`,
             }}>{["$", "¢", "%", "$"][i % 4]}</div>
           ))}
-          {/* Center content */}
           <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
             <p key={loadStep} className="step-in" style={{ fontFamily: "var(--font-d)", fontSize: 22, fontWeight: 700, color: "var(--forest)", letterSpacing: -0.5, marginBottom: 8 }}>
               {LOADING_STEPS[loadStep].text}
@@ -1393,7 +1375,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
             </div>
           ) : (
             <div style={{ maxWidth: 700, margin: "0 auto" }}>
-              {/* Header */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
                 <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 28, color: "#1E3F2F" }}>FinTips Admin</p>
                 <button onClick={() => { setShowAdmin(false); setAdminAuthed(false); setAdminPass(""); window.location.hash = ""; }}
@@ -1402,7 +1383,6 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </button>
               </div>
 
-              {/* Tabs */}
               <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
                 {["tips", "reports"].map(tab => (
                   <button key={tab} onClick={() => setAdminTab(tab)} style={{
