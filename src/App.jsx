@@ -421,7 +421,8 @@ const CSS = `
   .tag { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:100px; background:var(--sage); color:var(--forest); font-size:12px; font-weight:600; font-family:var(--font-b); }
   .divider { height:1px; background:var(--border); margin:28px 0; }
   .form-label { font-family:var(--font-b); font-size:13px; font-weight:600; color:var(--forest); display:block; margin-bottom:8px; }
-  textarea, select { font-family:var(--font-b); font-size:14px; width:100%; border:1.5px solid var(--border); border-radius:var(--rs); padding:12px 14px; background:var(--cream); color:var(--ink); outline:none; resize:none; transition:border-color 0.2s, box-shadow 0.2s; }
+  textarea, select { font-family:var(--font-b); font-size:16px; width:100%; border:1.5px solid var(--border); border-radius:var(--rs); padding:12px 14px; background:var(--cream); color:var(--ink); outline:none; resize:none; transition:border-color 0.2s, box-shadow 0.2s; }
+  input[type="text"], input[type="password"] { font-size: 16px; }
   textarea:focus, select:focus { border-color:var(--forest); box-shadow:0 0 0 3px rgba(30,63,47,0.08); }
   select { appearance:none; cursor:pointer; padding-right:36px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236B6558' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; }
   .char-count { font-size:12px; color:var(--muted); text-align:right; margin-top:4px; }
@@ -477,21 +478,21 @@ function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
         </p>
       </div>
 
-      <div style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "row", gap: 10, position: "relative", zIndex: 2 }}>
+      <div style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 10, position: "relative", zIndex: 2 }}>
         {[
           { label: "Get Advice", fn: onGetAdvice, primary: true },
           { label: "Write Advice", fn: onWriteAdvice, primary: false },
           { label: "View all Advice", fn: onViewAdvice, primary: false },
         ].map(({ label, fn, primary }) => (
           <button key={label} onClick={fn} style={{
-            flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
+            width: "100%", padding: "14px 8px", borderRadius: 0, cursor: "pointer",
             background: primary ? "#1E3F2F" : "#fff",
             color: primary ? "#FAF7F1" : "#1E3F2F",
             textAlign: "center",
             border: "1.5px solid #1E3F2F",
             transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
             fontFamily: "'Outfit', sans-serif",
-            fontSize: 12, fontWeight: 600,
+            fontSize: 14, fontWeight: 600, minHeight: 48,
           }}
             onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
             onMouseLeave={e => { e.currentTarget.style.background = primary ? "#1E3F2F" : "#fff"; e.currentTarget.style.color = primary ? "#FAF7F1" : "#1E3F2F"; }}>
@@ -504,7 +505,7 @@ function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
 }
 
 // ─── SHARE SHEET ─────────────────────────────────────────────────────────────
-function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = false }) {
+function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
   const [open, setOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reported, setReported] = useState(false);
@@ -535,7 +536,19 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
   }
 
   function copyText() {
-    navigator.clipboard.writeText(shareText).then(() => { setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500); });
+    navigator.clipboard.writeText(shareText)
+      .then(() => { setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500); })
+      .catch(() => {
+        // Fallback for http:// or denied clipboard permissions
+        const el = document.createElement("textarea");
+        el.value = shareText;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+        setCopied(true);
+        setTimeout(() => { setCopied(false); setOpen(false); }, 1500);
+      });
   }
 
   function shareX() {
@@ -556,165 +569,57 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
   }
 
   function downloadImage() {
-    const canvas = document.createElement("canvas");
+    try {
+      const canvas = document.createElement("canvas");
     canvas.width = 1080; canvas.height = 1080;
     const ctx = canvas.getContext("2d");
-
-    if (isAdvice) {
-      // ── YOUR TIPS style: white card on cream bg, dark text (matches the page) ──
-
-      // Cream background
-      ctx.fillStyle = "#FAF7F1";
-      ctx.fillRect(0, 0, 1080, 1080);
-
-      // White card with subtle border
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(60, 80, 960, 880);
-      ctx.strokeStyle = "rgba(30,63,47,0.11)";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(60, 80, 960, 880);
-
-      // "Your Tips" title in forest green at top of card
-      ctx.fillStyle = "#1E3F2F";
-      ctx.font = "italic 56px Georgia, serif";
-      ctx.textAlign = "center";
-      ctx.fillText("Your Tips", 540, 180);
-
-      // Thin divider under title
-      ctx.strokeStyle = "rgba(30,63,47,0.11)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(120, 210);
-      ctx.lineTo(960, 210);
-      ctx.stroke();
-
-      // Advice text — dark ink, centered, wrapping
-      ctx.fillStyle = "#1A1A18";
-      ctx.font = "28px Arial, sans-serif";
-      ctx.textAlign = "center";
-      const maxWidth = 820;
-      const lineHeight = 52;
-      const paragraphs = text.split("\n\n").filter(Boolean);
-      let y = 290;
-      for (const para of paragraphs) {
-        const words = para.split(" ");
-        let line = "";
-        for (const word of words) {
-          const test = line + word + " ";
-          if (ctx.measureText(test).width > maxWidth && line) {
-            ctx.fillText(line.trim(), 540, y);
-            line = word + " ";
-            y += lineHeight;
-          } else line = test;
-        }
-        if (line) { ctx.fillText(line.trim(), 540, y); y += lineHeight; }
-        y += 24; // paragraph gap
-      }
-
-      // Bottom divider
-      ctx.strokeStyle = "rgba(30,63,47,0.11)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(120, 900);
-      ctx.lineTo(960, 900);
-      ctx.stroke();
-
-      // FinTips URL
-      ctx.fillStyle = "#1E3F2F";
-      ctx.font = "bold 22px Arial, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("fintips.vercel.app", 540, 940);
-
-    } else {
-      // ── FINANCIAL FACTS style: green card, cream text, gold accents ──
-
-      // Cream outer background
-      ctx.fillStyle = "#FAF7F1";
-      ctx.fillRect(0, 0, 1080, 1080);
-
-      // Dark green card
-      const cardX = 60, cardY = 60, cardW = 960, cardH = 960;
-      ctx.fillStyle = "#1E3F2F";
-      ctx.fillRect(cardX, cardY, cardW, cardH);
-
-      // Subtle circle decorations
-      ctx.save();
-      ctx.globalAlpha = 0.06;
-      ctx.fillStyle = "#ffffff";
-      ctx.beginPath();
-      ctx.arc(1010, 10, 200, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#C9A84C";
-      ctx.beginPath();
-      ctx.arc(30, 1050, 140, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // Category label (gold, uppercase)
-      ctx.fillStyle = "#C9A84C";
-      ctx.font = "bold 20px Arial, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(label ? label.toUpperCase() : "", 540, 200);
-
-      // Tip text (cream)
-      ctx.fillStyle = "rgba(250,247,241,0.94)";
-      ctx.font = "32px Arial, sans-serif";
-      ctx.textAlign = "center";
-      const maxWidth2 = 820;
-      const lineHeight2 = 54;
-      const words2 = text.split(" ");
-      let line2 = "";
-      let y2 = 310;
-      for (const word of words2) {
-        const test = line2 + word + " ";
-        if (ctx.measureText(test).width > maxWidth2 && line2) {
-          ctx.fillText(line2.trim(), 540, y2);
-          line2 = word + " ";
-          y2 += lineHeight2;
-        } else line2 = test;
-      }
-      if (line2) ctx.fillText(line2.trim(), 540, y2);
-
-      // Fact box
-      const factBoxY = y2 + 70;
-      const factBoxH = 130;
-      ctx.fillStyle = "rgba(255,255,255,0.06)";
-      ctx.fillRect(cardX + 60, factBoxY, cardW - 120, factBoxH);
-      // Gold left border
-      ctx.fillStyle = "#C9A84C";
-      ctx.fillRect(cardX + 60, factBoxY, 5, factBoxH);
-      // Fact text inside box
-      if (fact) {
-        ctx.fillStyle = "rgba(212,236,216,0.82)";
-        ctx.font = "22px Arial, sans-serif";
-        ctx.textAlign = "left";
-        const factMaxWidth = cardW - 180;
-        const factWords = fact.split(" ");
-        let factLine = "";
-        let factY = factBoxY + 44;
-        for (const word of factWords) {
-          const test = factLine + word + " ";
-          if (ctx.measureText(test).width > factMaxWidth && factLine) {
-            ctx.fillText(factLine.trim(), cardX + 90, factY);
-            factLine = word + " ";
-            factY += 36;
-          } else factLine = test;
-        }
-        if (factLine) ctx.fillText(factLine.trim(), cardX + 90, factY);
-      }
-
-      // FinTips URL
-      ctx.fillStyle = "rgba(212,236,216,0.6)";
-      ctx.font = "bold 20px Arial, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("fintips.vercel.app", 540, cardY + cardH - 40);
+    ctx.fillStyle = "#FAF7F1";
+    ctx.fillRect(0, 0, 1080, 1080);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(60, 60, 960, 960);
+    ctx.strokeStyle = "#1E3F2F";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(60, 60, 960, 960);
+    ctx.fillStyle = "#1E3F2F";
+    ctx.font = "italic bold 52px Georgia, 'Times New Roman', serif";
+    ctx.textAlign = "center";
+    ctx.fillText("FinTips", 540, 160);
+    ctx.fillStyle = "#1A1A18";
+    ctx.font = "28px 'Arial', sans-serif";
+    ctx.textAlign = "center";
+    const maxWidth = 840;
+    const lineHeight = 48;
+    const words = text.split(" ");
+    let line = "";
+    let y = 260;
+    for (const word of words) {
+      const test = line + word + " ";
+      if (ctx.measureText(test).width > maxWidth && line) {
+        ctx.fillText(line.trim(), 540, y);
+        line = word + " ";
+        y += lineHeight;
+      } else line = test;
     }
-
+    if (line) ctx.fillText(line.trim(), 540, y);
+    ctx.strokeStyle = "rgba(30,63,47,0.15)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(100, 940);
+    ctx.lineTo(980, 940);
+    ctx.stroke();
+    ctx.fillStyle = "#1E3F2F";
+    ctx.font = "bold 22px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("fintips.vercel.app", 540, 985);
     const link = document.createElement("a");
-    link.download = "fintips-tip.png";
+    link.download = "fintips-advice.png";
     link.href = canvas.toDataURL();
     link.click();
     setOpen(false);
+    } catch (err) {
+      console.error("Download image failed:", err);
+      setOpen(false);
+    }
   }
 
   return (
@@ -752,17 +657,12 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
 
       {open && (
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: "#FAF7F1", borderRadius: 0, padding: "28px 24px 40px", width: "100%", maxWidth: 560, animation: "sheetUp 0.32s cubic-bezier(0.22,1,0.36,1)" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#FAF7F1", borderRadius: 0, padding: "28px 24px 40px", paddingBottom: "max(40px, env(safe-area-inset-bottom, 40px))", width: "100%", maxWidth: 560, animation: "sheetUp 0.32s cubic-bezier(0.22,1,0.36,1)" }}>
             <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 24, fontWeight: 400, color: "var(--forest)", marginBottom: 10 }}>Share this {isAdvice ? "advice" : "tip"}</p>
             <p style={{ fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginBottom: 24, fontStyle: "italic" }}>
               "{text.slice(0, 120)}{text.length > 120 ? "…" : ""}"
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {navigator.share && (
-                <button onClick={shareNative} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "var(--forest)", color: "var(--cream)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 600, border: "none", cursor: "pointer" }}>
-                  Share via...
-                </button>
-              )}
               <button onClick={copyText} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>
                 {copied ? "Copied!" : "Copy text"}
               </button>
@@ -778,6 +678,11 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
               <button onClick={shareInstagram} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>
                 Share on Instagram
               </button>
+              {navigator.share && (
+                <button onClick={shareNative} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "var(--forest)", color: "var(--cream)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 600, border: "none", cursor: "pointer" }}>
+                  Share via...
+                </button>
+              )}
               <button onClick={() => setOpen(false)} style={{ width: "100%", padding: "14px", background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", cursor: "pointer", marginTop: 4 }}>
                 Cancel
               </button>
@@ -931,7 +836,7 @@ export default function FinTips() {
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 3000); }
 
-  // ─── UPDATED: getAdviceWithAnswers with retry logic and fallback ──────────
+  // ─── getAdviceWithAnswers: race-condition fix + timeout guard ────────────
   async function getAdviceWithAnswers(answers) {
     setAdvice("");
     const categoryMap = {
@@ -941,8 +846,10 @@ export default function FinTips() {
       "Rebuilding my credit": "Credit",
     };
     setSubmitForm(f => ({ ...f, category: categoryMap[answers.goal] || "General" }));
+
+    // Navigate to loading FIRST, then wait for paint before fetching
     go("loading");
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 150));
 
     const prompt = `You are a direct, no-nonsense money coach. Here is what this person shared:
 - Goal: ${answers.goal}
@@ -951,31 +858,36 @@ export default function FinTips() {
 
 Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specific — real numbers only (dollars, %, timeframes). No intros, no fluff, no "great question!", no encouragement filler. Just the advice. Always complete every sentence fully. Plain paragraphs, no bullet points or headers.`;
 
-    // This is the backup advice shown if the AI is unavailable
     const FALLBACK = "Start by automating at least $25 per paycheck directly into a separate savings account — you'll save $650 a year without thinking about it.\n\nIf you have credit card debt, call your card issuer and ask for a lower APR. About 70% of people who ask get one, and even 3% less saves you hundreds annually.\n\nTrack every expense for the next 30 days. Most people find $100–$300 in forgotten subscriptions or habits they can redirect toward their actual goal.";
 
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
+        // Timeout guard — abort if Gemini takes longer than 12 seconds
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
             body: JSON.stringify({
               contents: [{ parts: [{ text: prompt }] }],
               generationConfig: { maxOutputTokens: 1500, temperature: 0.7 },
             }),
           }
         );
+        clearTimeout(timeoutId);
 
-        // 429 = "too many requests" — wait and retry
         if (res.status === 429) {
           if (attempt < 2) {
             await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
             continue;
           }
-          // All retries used up — show backup tips with a message
+          // Set advice BEFORE navigating to avoid blank screen
           setAdvice(FALLBACK);
+          await new Promise(r => setTimeout(r, 50));
           go("advice");
           showToast("⚠️ AI is busy — showing a backup tip");
           return;
@@ -985,10 +897,11 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
 
         const data = await res.json();
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
         if (!text) throw new Error("Empty response from Gemini");
 
+        // Set advice BEFORE navigating — prevents blank advice screen
         setAdvice(text);
+        await new Promise(r => setTimeout(r, 50));
         go("advice");
         return;
 
@@ -996,6 +909,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
         console.error(`Gemini attempt ${attempt + 1} failed:`, err);
         if (attempt === 2) {
           setAdvice(FALLBACK);
+          await new Promise(r => setTimeout(r, 50));
           go("advice");
           showToast("Couldn't reach AI — showing a backup tip");
         }
@@ -1148,7 +1062,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
               )}
 
               <button onClick={() => quizStep === 0 ? setShowSplash(true) : setQuizStep(s => s - 1)}
-                style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", padding: 0, marginTop: 8, transition: "color 0.2s" }}
+                style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", padding: "12px 0", marginTop: 8, transition: "color 0.2s", minHeight: 44 }}
                 onMouseEnter={e => e.currentTarget.style.color = "var(--forest)"}
                 onMouseLeave={e => e.currentTarget.style.color = "var(--muted)"}>
                 ← Back
@@ -1172,7 +1086,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               </div>
               <div style={{ position: "relative", zIndex: 10, marginTop: 28 }}>
-                <ShareSheet text={CURATED_TIPS[tipIndex].tip} label={CURATED_TIPS[tipIndex].category} fact={CURATED_TIPS[tipIndex].fact} />
+                <ShareSheet text={CURATED_TIPS[tipIndex].tip} label={CURATED_TIPS[tipIndex].category} />
               </div>
 
               <div style={{ display: "flex", gap: 10, marginTop: 60 }}>
@@ -1230,7 +1144,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                     placeholder=""
                     value={submitForm.name || ""}
                     onChange={e => setSubmitForm(f => ({ ...f, name: e.target.value }))}
-                    style={{ width: "100%", padding: "12px 14px", border: "1.5px solid var(--border)", fontFamily: "var(--font-b)", fontSize: 14, background: "var(--cream)", color: "var(--ink)", outline: "none", borderRadius: 0 }}
+                    style={{ width: "100%", padding: "12px 14px", border: "1.5px solid var(--border)", fontFamily: "var(--font-b)", fontSize: 16, background: "var(--cream)", color: "var(--ink)", outline: "none", borderRadius: 0 }}
                   />
                 </div>
 
