@@ -525,66 +525,85 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
     canvas.width = 1080; canvas.height = 1080;
     const ctx = canvas.getContext("2d");
 
-    if (isAdvice) {
-      ctx.fillStyle = "#FAF7F1"; ctx.fillRect(0, 0, 1080, 1080);
-      ctx.fillStyle = "#ffffff"; ctx.fillRect(60, 80, 960, 880);
-      ctx.strokeStyle = "rgba(30,63,47,0.11)"; ctx.lineWidth = 2;
-      ctx.strokeRect(60, 80, 960, 880);
-      ctx.fillStyle = "#1E3F2F"; ctx.font = "italic 56px Georgia, serif";
-      ctx.textAlign = "center"; ctx.fillText("Your Tips", 540, 180);
-      ctx.strokeStyle = "rgba(30,63,47,0.11)"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(120, 210); ctx.lineTo(960, 210); ctx.stroke();
-      ctx.fillStyle = "#1A1A18"; ctx.font = "28px Arial, sans-serif";
-      ctx.textAlign = "center";
-      const mw = 820, lh = 52;
-      const paras = text.split("\n\n").filter(Boolean);
-      let y = 290;
-      for (const para of paras) {
-        const words = para.split(" "); let line = "";
-        for (const word of words) {
-          const t = line + word + " ";
-          if (ctx.measureText(t).width > mw && line) { ctx.fillText(line.trim(), 540, y); line = word + " "; y += lh; } else line = t;
-        }
-        if (line) { ctx.fillText(line.trim(), 540, y); y += lh; } y += 24;
+    // Cream background
+    ctx.fillStyle = "#FAF7F1";
+    ctx.fillRect(0, 0, 1080, 1080);
+
+    // White card with subtle border
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(60, 60, 960, 960);
+    ctx.strokeStyle = "rgba(30,63,47,0.11)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(60, 60, 960, 960);
+
+    // Title — "Your Tips" for advice, category name for Financial Facts
+    ctx.fillStyle = "#1E3F2F";
+    ctx.font = "italic 56px Georgia, serif";
+    ctx.textAlign = "center";
+    ctx.fillText(isAdvice ? "Your Tips" : (label || "Financial Facts"), 540, 180);
+
+    // Divider under title
+    ctx.strokeStyle = "rgba(30,63,47,0.11)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(120, 210);
+    ctx.lineTo(960, 210);
+    ctx.stroke();
+
+    // Main tip/advice text — dark ink, centered, wrapping
+    ctx.fillStyle = "#1A1A18";
+    ctx.font = "30px Arial, sans-serif";
+    ctx.textAlign = "center";
+    const maxWidth = 820, lineHeight = 54;
+    const paragraphs = text.split("\n\n").filter(Boolean);
+    let y = 300;
+    for (const para of paragraphs) {
+      const words = para.split(" ");
+      let line = "";
+      for (const word of words) {
+        const test = line + word + " ";
+        if (ctx.measureText(test).width > maxWidth && line) {
+          ctx.fillText(line.trim(), 540, y);
+          line = word + " ";
+          y += lineHeight;
+        } else line = test;
       }
-      ctx.strokeStyle = "rgba(30,63,47,0.11)"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(120, 900); ctx.lineTo(960, 900); ctx.stroke();
-      ctx.fillStyle = "#1E3F2F"; ctx.font = "bold 22px Arial, sans-serif";
-      ctx.textAlign = "center"; ctx.fillText("fintips.vercel.app", 540, 940);
-    } else {
-      ctx.fillStyle = "#FAF7F1"; ctx.fillRect(0, 0, 1080, 1080);
-      const cx = 60, cy = 60, cw = 960, ch = 960;
-      ctx.fillStyle = "#1E3F2F"; ctx.fillRect(cx, cy, cw, ch);
-      ctx.save(); ctx.globalAlpha = 0.06;
-      ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(1010, 10, 200, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#C9A84C"; ctx.beginPath(); ctx.arc(30, 1050, 140, 0, Math.PI * 2); ctx.fill();
-      ctx.restore();
-      ctx.fillStyle = "#C9A84C"; ctx.font = "bold 20px Arial, sans-serif";
-      ctx.textAlign = "center"; ctx.fillText(label ? label.toUpperCase() : "", 540, 200);
-      ctx.fillStyle = "rgba(250,247,241,0.94)"; ctx.font = "32px Arial, sans-serif";
-      ctx.textAlign = "center";
-      const mw2 = 820, lh2 = 54; const words2 = text.split(" "); let line2 = "", y2 = 310;
-      for (const word of words2) {
-        const t = line2 + word + " ";
-        if (ctx.measureText(t).width > mw2 && line2) { ctx.fillText(line2.trim(), 540, y2); line2 = word + " "; y2 += lh2; } else line2 = t;
-      }
-      if (line2) ctx.fillText(line2.trim(), 540, y2);
-      const fby = y2 + 70, fbh = 130;
-      ctx.fillStyle = "rgba(255,255,255,0.06)"; ctx.fillRect(cx + 60, fby, cw - 120, fbh);
-      ctx.fillStyle = "#C9A84C"; ctx.fillRect(cx + 60, fby, 5, fbh);
-      if (fact) {
-        ctx.fillStyle = "rgba(212,236,216,0.82)"; ctx.font = "22px Arial, sans-serif";
-        ctx.textAlign = "left";
-        const fw = cw - 180; const fwords = fact.split(" "); let fl = "", fy = fby + 44;
-        for (const word of fwords) {
-          const t = fl + word + " ";
-          if (ctx.measureText(t).width > fw && fl) { ctx.fillText(fl.trim(), cx + 90, fy); fl = word + " "; fy += 36; } else fl = t;
-        }
-        if (fl) ctx.fillText(fl.trim(), cx + 90, fy);
-      }
-      ctx.fillStyle = "rgba(212,236,216,0.6)"; ctx.font = "bold 20px Arial, sans-serif";
-      ctx.textAlign = "center"; ctx.fillText("fintips.vercel.app", 540, cy + ch - 40);
+      if (line) { ctx.fillText(line.trim(), 540, y); y += lineHeight; }
+      y += 28;
     }
+
+    // For Financial Facts — show the fact below in muted text
+    if (!isAdvice && fact) {
+      y += 10;
+      ctx.strokeStyle = "rgba(30,63,47,0.08)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(120, y); ctx.lineTo(960, y); ctx.stroke();
+      y += 36;
+      ctx.fillStyle = "#6B6558";
+      ctx.font = "italic 24px Georgia, serif";
+      ctx.textAlign = "center";
+      const fwords = fact.split(" "); let fline = "";
+      for (const word of fwords) {
+        const test = fline + word + " ";
+        if (ctx.measureText(test).width > maxWidth && fline) {
+          ctx.fillText(fline.trim(), 540, y);
+          fline = word + " "; y += 40;
+        } else fline = test;
+      }
+      if (fline) ctx.fillText(fline.trim(), 540, y);
+    }
+
+    // Bottom divider + URL
+    ctx.strokeStyle = "rgba(30,63,47,0.11)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(120, 960); ctx.lineTo(960, 960); ctx.stroke();
+    ctx.fillStyle = "#1E3F2F";
+    ctx.font = "bold 22px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("fintips.vercel.app", 540, 1005);
+
     return canvas;
   }
 
@@ -739,20 +758,20 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
                 Download image
               </button>
               <button onClick={shareX} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                Share on X (saves image first)
+                Share on X
               </button>
               <button onClick={shareFacebook} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                Share on Facebook (saves image first)
+                Share on Facebook
               </button>
               <button onClick={shareInstagram} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                Share on Instagram (saves image)
+                Share on Instagram
               </button>
               <button onClick={copyText} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>
-                {copied ? "Copied!" : "Copy text only"}
+                {copied ? "Copied!" : "Copy text"}
               </button>
               {navigator.share && (
                 <button onClick={shareNative} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "var(--forest)", color: "var(--cream)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 600, border: "none", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                  {sharing ? "Preparing..." : "Share via... (sends image)"}
+                  {sharing ? "Preparing..." : "Share via..."}
                 </button>
               )}
               <button onClick={() => setOpen(false)} style={{ width: "100%", padding: "14px", background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", cursor: "pointer", marginTop: 4 }}>
