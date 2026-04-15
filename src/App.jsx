@@ -505,7 +505,7 @@ function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
 }
 
 // ─── SHARE SHEET ─────────────────────────────────────────────────────────────
-function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
+function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = false }) {
   const [open, setOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reported, setReported] = useState(false);
@@ -517,109 +517,178 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
     ? `💡 My personalized money advice from FinTips:\n\n"${text.slice(0, 200)}..."\n\nGet yours free at FinTips 🌿`
     : `💡 ${label} tip from FinTips:\n\n"${text}"\n\nGet yours free at FinTips 🌿`;
 
+  const [sharing, setSharing] = useState(false);
+
+  // ── Build the branded image as a Blob (used by all share methods) ──────────
+  function buildCanvas() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080; canvas.height = 1080;
+    const ctx = canvas.getContext("2d");
+
+    if (isAdvice) {
+      ctx.fillStyle = "#FAF7F1"; ctx.fillRect(0, 0, 1080, 1080);
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(60, 80, 960, 880);
+      ctx.strokeStyle = "rgba(30,63,47,0.11)"; ctx.lineWidth = 2;
+      ctx.strokeRect(60, 80, 960, 880);
+      ctx.fillStyle = "#1E3F2F"; ctx.font = "italic 56px Georgia, serif";
+      ctx.textAlign = "center"; ctx.fillText("Your Tips", 540, 180);
+      ctx.strokeStyle = "rgba(30,63,47,0.11)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(120, 210); ctx.lineTo(960, 210); ctx.stroke();
+      ctx.fillStyle = "#1A1A18"; ctx.font = "28px Arial, sans-serif";
+      ctx.textAlign = "center";
+      const mw = 820, lh = 52;
+      const paras = text.split("\n\n").filter(Boolean);
+      let y = 290;
+      for (const para of paras) {
+        const words = para.split(" "); let line = "";
+        for (const word of words) {
+          const t = line + word + " ";
+          if (ctx.measureText(t).width > mw && line) { ctx.fillText(line.trim(), 540, y); line = word + " "; y += lh; } else line = t;
+        }
+        if (line) { ctx.fillText(line.trim(), 540, y); y += lh; } y += 24;
+      }
+      ctx.strokeStyle = "rgba(30,63,47,0.11)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(120, 900); ctx.lineTo(960, 900); ctx.stroke();
+      ctx.fillStyle = "#1E3F2F"; ctx.font = "bold 22px Arial, sans-serif";
+      ctx.textAlign = "center"; ctx.fillText("fintips.vercel.app", 540, 940);
+    } else {
+      ctx.fillStyle = "#FAF7F1"; ctx.fillRect(0, 0, 1080, 1080);
+      const cx = 60, cy = 60, cw = 960, ch = 960;
+      ctx.fillStyle = "#1E3F2F"; ctx.fillRect(cx, cy, cw, ch);
+      ctx.save(); ctx.globalAlpha = 0.06;
+      ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(1010, 10, 200, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#C9A84C"; ctx.beginPath(); ctx.arc(30, 1050, 140, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      ctx.fillStyle = "#C9A84C"; ctx.font = "bold 20px Arial, sans-serif";
+      ctx.textAlign = "center"; ctx.fillText(label ? label.toUpperCase() : "", 540, 200);
+      ctx.fillStyle = "rgba(250,247,241,0.94)"; ctx.font = "32px Arial, sans-serif";
+      ctx.textAlign = "center";
+      const mw2 = 820, lh2 = 54; const words2 = text.split(" "); let line2 = "", y2 = 310;
+      for (const word of words2) {
+        const t = line2 + word + " ";
+        if (ctx.measureText(t).width > mw2 && line2) { ctx.fillText(line2.trim(), 540, y2); line2 = word + " "; y2 += lh2; } else line2 = t;
+      }
+      if (line2) ctx.fillText(line2.trim(), 540, y2);
+      const fby = y2 + 70, fbh = 130;
+      ctx.fillStyle = "rgba(255,255,255,0.06)"; ctx.fillRect(cx + 60, fby, cw - 120, fbh);
+      ctx.fillStyle = "#C9A84C"; ctx.fillRect(cx + 60, fby, 5, fbh);
+      if (fact) {
+        ctx.fillStyle = "rgba(212,236,216,0.82)"; ctx.font = "22px Arial, sans-serif";
+        ctx.textAlign = "left";
+        const fw = cw - 180; const fwords = fact.split(" "); let fl = "", fy = fby + 44;
+        for (const word of fwords) {
+          const t = fl + word + " ";
+          if (ctx.measureText(t).width > fw && fl) { ctx.fillText(fl.trim(), cx + 90, fy); fl = word + " "; fy += 36; } else fl = t;
+        }
+        if (fl) ctx.fillText(fl.trim(), cx + 90, fy);
+      }
+      ctx.fillStyle = "rgba(212,236,216,0.6)"; ctx.font = "bold 20px Arial, sans-serif";
+      ctx.textAlign = "center"; ctx.fillText("fintips.vercel.app", 540, cy + ch - 40);
+    }
+    return canvas;
+  }
+
+  function getImageBlob() {
+    return new Promise((resolve) => {
+      const canvas = buildCanvas();
+      canvas.toBlob(resolve, "image/png");
+    });
+  }
+
   function handleLike() {
     if (!liked) { setLiked(true); setLikes(l => l + 1); }
     else { setLiked(false); setLikes(l => l - 1); }
   }
 
   function handleReport(reason) {
-    setReported(true);
-    setReportOpen(false);
-    try {
-      supabaseFetch("/reports", { method: "POST", prefer: "return=minimal", body: JSON.stringify({ tip_text: text.slice(0, 200), reason, reported_at: new Date().toISOString() }) });
-    } catch { /* silent */ }
+    setReported(true); setReportOpen(false);
+    try { supabaseFetch("/reports", { method: "POST", prefer: "return=minimal", body: JSON.stringify({ tip_text: text.slice(0, 200), reason, reported_at: new Date().toISOString() }) }); }
+    catch { /* silent */ }
   }
 
-  function shareNative() {
-    if (navigator.share) navigator.share({ title: "FinTips", text: shareText }).catch(() => {});
+  // Native share — sends the actual image file on iOS/Android
+  async function shareNative() {
+    setSharing(true);
+    try {
+      const blob = await getImageBlob();
+      const file = new File([blob], "fintips.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "FinTips", text: shareText });
+      } else if (navigator.share) {
+        await navigator.share({ title: "FinTips", text: shareText });
+      }
+    } catch { /* user cancelled */ }
+    setSharing(false); setOpen(false);
+  }
+
+  // Download the image to disk
+  async function downloadImage() {
+    try {
+      const blob = await getImageBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = "fintips-tip.png"; link.href = url;
+      link.click(); URL.revokeObjectURL(url);
+    } catch (err) { console.error("Download failed:", err); }
     setOpen(false);
   }
 
+  // Copy text fallback
   function copyText() {
     navigator.clipboard.writeText(shareText)
       .then(() => { setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500); })
       .catch(() => {
-        // Fallback for http:// or denied clipboard permissions
         const el = document.createElement("textarea");
-        el.value = shareText;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand("copy");
-        document.body.removeChild(el);
-        setCopied(true);
-        setTimeout(() => { setCopied(false); setOpen(false); }, 1500);
+        el.value = shareText; document.body.appendChild(el); el.select();
+        document.execCommand("copy"); document.body.removeChild(el);
+        setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500);
       });
   }
 
-  function shareX() {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank", "width=600,height=400");
-    setOpen(false);
-  }
-
-  function shareFacebook() {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(shareText)}`, "_blank", "width=600,height=400");
-    setOpen(false);
-  }
-
-  function shareInstagram() {
-    navigator.clipboard.writeText(shareText).then(() => {
-      alert("Text copied! Open Instagram and paste in your story or post.");
-      setOpen(false);
-    });
-  }
-
-  function downloadImage() {
+  // Share on X — downloads image then opens X so user can attach it
+  async function shareX() {
+    setSharing(true);
     try {
-      const canvas = document.createElement("canvas");
-    canvas.width = 1080; canvas.height = 1080;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#FAF7F1";
-    ctx.fillRect(0, 0, 1080, 1080);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(60, 60, 960, 960);
-    ctx.strokeStyle = "#1E3F2F";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(60, 60, 960, 960);
-    ctx.fillStyle = "#1E3F2F";
-    ctx.font = "italic bold 52px Georgia, 'Times New Roman', serif";
-    ctx.textAlign = "center";
-    ctx.fillText("FinTips", 540, 160);
-    ctx.fillStyle = "#1A1A18";
-    ctx.font = "28px 'Arial', sans-serif";
-    ctx.textAlign = "center";
-    const maxWidth = 840;
-    const lineHeight = 48;
-    const words = text.split(" ");
-    let line = "";
-    let y = 260;
-    for (const word of words) {
-      const test = line + word + " ";
-      if (ctx.measureText(test).width > maxWidth && line) {
-        ctx.fillText(line.trim(), 540, y);
-        line = word + " ";
-        y += lineHeight;
-      } else line = test;
-    }
-    if (line) ctx.fillText(line.trim(), 540, y);
-    ctx.strokeStyle = "rgba(30,63,47,0.15)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(100, 940);
-    ctx.lineTo(980, 940);
-    ctx.stroke();
-    ctx.fillStyle = "#1E3F2F";
-    ctx.font = "bold 22px Arial, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("fintips.vercel.app", 540, 985);
-    const link = document.createElement("a");
-    link.download = "fintips-advice.png";
-    link.href = canvas.toDataURL();
-    link.click();
-    setOpen(false);
-    } catch (err) {
-      console.error("Download image failed:", err);
-      setOpen(false);
-    }
+      const blob = await getImageBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = "fintips.png"; link.href = url; link.click();
+      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank", "width=600,height=400");
+      }, 800);
+    } catch { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank"); }
+    setSharing(false); setOpen(false);
+  }
+
+  // Share on Facebook — downloads image then opens Facebook
+  async function shareFacebook() {
+    setSharing(true);
+    try {
+      const blob = await getImageBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = "fintips.png"; link.href = url; link.click();
+      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, "_blank", "width=600,height=400");
+      }, 800);
+    } catch { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, "_blank"); }
+    setSharing(false); setOpen(false);
+  }
+
+  // Share on Instagram — downloads image and tells user to upload it
+  async function shareInstagram() {
+    setSharing(true);
+    try {
+      const blob = await getImageBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = "fintips.png"; link.href = url; link.click();
+      URL.revokeObjectURL(url);
+      setTimeout(() => alert("Image saved! Open Instagram and upload it as a post or story. 🌿"), 600);
+    } catch { alert("Couldn't generate image — try Download as image instead."); }
+    setSharing(false); setOpen(false);
   }
 
   return (
@@ -663,24 +732,27 @@ function ShareSheet({ text, label, isAdvice = false, hideHeart = false }) {
               "{text.slice(0, 120)}{text.length > 120 ? "…" : ""}"
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {sharing && (
+                <p style={{ textAlign: "center", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", padding: "8px 0" }}>Generating image...</p>
+              )}
+              <button onClick={downloadImage} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
+                Download image
+              </button>
+              <button onClick={shareX} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
+                Share on X (saves image first)
+              </button>
+              <button onClick={shareFacebook} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
+                Share on Facebook (saves image first)
+              </button>
+              <button onClick={shareInstagram} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
+                Share on Instagram (saves image)
+              </button>
               <button onClick={copyText} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>
-                {copied ? "Copied!" : "Copy text"}
-              </button>
-              <button onClick={downloadImage} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>
-                Download as image
-              </button>
-              <button onClick={shareX} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>
-                Share on X
-              </button>
-              <button onClick={shareFacebook} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>
-                Share on Facebook
-              </button>
-              <button onClick={shareInstagram} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>
-                Share on Instagram
+                {copied ? "Copied!" : "Copy text only"}
               </button>
               {navigator.share && (
-                <button onClick={shareNative} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "var(--forest)", color: "var(--cream)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 600, border: "none", cursor: "pointer" }}>
-                  Share via...
+                <button onClick={shareNative} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "var(--forest)", color: "var(--cream)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 600, border: "none", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
+                  {sharing ? "Preparing..." : "Share via... (sends image)"}
                 </button>
               )}
               <button onClick={() => setOpen(false)} style={{ width: "100%", padding: "14px", background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", cursor: "pointer", marginTop: 4 }}>
