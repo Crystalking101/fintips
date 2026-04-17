@@ -651,8 +651,10 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
     setOpen(false);
   }
 
-  // Copy text fallback
-  function copyText() {
+  function shareLinkedIn() {
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://fintips.vercel.app")}`, "_blank", "width=600,height=400");
+    setOpen(false);
+  }
     navigator.clipboard.writeText(shareText)
       .then(() => { setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500); })
       .catch(() => {
@@ -758,6 +760,9 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
               </button>
               <button onClick={shareX} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
                 Share on X
+              </button>
+              <button onClick={shareLinkedIn} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
+                Share on LinkedIn
               </button>
               <button onClick={shareFacebook} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
                 Share on Facebook
@@ -961,7 +966,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
         },
         signal: controller.signal,
         body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
+          model: "llama3-8b-8192",
           messages: [{ role: "user", content: prompt }],
           max_tokens: 500,
           temperature: 0.7,
