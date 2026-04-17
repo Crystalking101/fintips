@@ -655,6 +655,9 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://fintips.vercel.app")}`, "_blank", "width=600,height=400");
     setOpen(false);
   }
+
+  // Copy text fallback
+  function copyText() {
     navigator.clipboard.writeText(shareText)
       .then(() => { setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500); })
       .catch(() => {
