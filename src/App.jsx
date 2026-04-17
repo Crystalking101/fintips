@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
-// ─── GEMINI CONFIG ────────────────────────────────────────────────────────────
-// In Vite: add VITE_GEMINI_API_KEY to your .env file
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+// ─── GROQ CONFIG ─────────────────────────────────────────────────────────────
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 // ─── SUPABASE CONFIG ──────────────────────────────────────────────────────────
 // In Vite: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file
@@ -927,7 +926,7 @@ export default function FinTips() {
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 3000); }
 
-  // ─── getAdviceWithAnswers: race-condition fix + timeout guard ────────────
+  // ─── getAdviceWithAnswers: Groq API ──────────────────────────────────────
   async function getAdviceWithAnswers(answers) {
     setAdvice("");
     const categoryMap = {
@@ -938,7 +937,6 @@ export default function FinTips() {
     };
     setSubmitForm(f => ({ ...f, category: categoryMap[answers.goal] || "General" }));
 
-    // Navigate to loading FIRST, then wait for paint before fetching
     go("loading");
     await new Promise(r => setTimeout(r, 150));
 
@@ -951,60 +949,46 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
 
     const FALLBACK = "Start by automating at least $25 per paycheck directly into a separate savings account — you'll save $650 a year without thinking about it.\n\nIf you have credit card debt, call your card issuer and ask for a lower APR. About 70% of people who ask get one, and even 3% less saves you hundreds annually.\n\nTrack every expense for the next 30 days. Most people find $100–$300 in forgotten subscriptions or habits they can redirect toward their actual goal.";
 
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        // Timeout guard — abort if Gemini takes longer than 12 seconds
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000);
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            signal: controller.signal,
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { maxOutputTokens: 1500, temperature: 0.7 },
-            }),
-          }
-        );
-        clearTimeout(timeoutId);
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 500,
+          temperature: 0.7,
+        }),
+      });
+      clearTimeout(timeoutId);
 
-        if (res.status === 429) {
-          if (attempt < 2) {
-            await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
-            continue;
-          }
-          // Set advice BEFORE navigating to avoid blank screen
-          setAdvice(FALLBACK);
-          await new Promise(r => setTimeout(r, 50));
-          go("advice");
-          showToast("⚠️ AI is busy — showing a backup tip");
-          return;
-        }
-
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-
-        const data = await res.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error("Empty response from Gemini");
-
-        // Set advice BEFORE navigating — prevents blank advice screen
-        setAdvice(text);
-        await new Promise(r => setTimeout(r, 50));
-        go("advice");
-        return;
-
-      } catch (err) {
-        console.error(`Gemini attempt ${attempt + 1} failed:`, err);
-        if (attempt === 2) {
-          setAdvice(FALLBACK);
-          await new Promise(r => setTimeout(r, 50));
-          go("advice");
-          showToast("Couldn't reach AI — showing a backup tip");
-        }
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error("Groq error:", res.status, errData);
+        throw new Error(`Groq API error ${res.status}`);
       }
+
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (!text) throw new Error("Empty response from Groq");
+
+      setAdvice(text);
+      await new Promise(r => setTimeout(r, 50));
+      go("advice");
+
+    } catch (err) {
+      console.error("Groq failed:", err);
+      setAdvice(FALLBACK);
+      await new Promise(r => setTimeout(r, 50));
+      go("advice");
+      showToast("Couldn't reach AI — showing a backup tip");
     }
   }
 
