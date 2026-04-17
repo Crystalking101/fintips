@@ -1107,7 +1107,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                     ].map(({ label, sub, icon }) => {
                       const selected = quizAnswers.goal === label;
                       return (
-                        <button key={label} onClick={() => { setQuizAnswers(a => ({ ...a, goal: label })); setQuizStep(1); }}
+                        <button key={label} onClick={() => { setQuizAnswers(a => ({ ...a, goal: label })); setTimeout(() => setQuizStep(1), 300); }}
                           style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 18px", textAlign: "left", background: selected ? "#1E3F2F" : "#fff", border: `1.5px solid ${selected ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", transition: "all 0.18s", width: "100%" }}
                           onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
                           onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
@@ -1147,7 +1147,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                     ].map(({ label, sub, icon }) => {
                       const selected = quizAnswers.startingPoint === label;
                       return (
-                        <button key={label} onClick={() => { setQuizAnswers(a => ({ ...a, startingPoint: label })); setQuizStep(2); }}
+                        <button key={label} onClick={() => { setQuizAnswers(a => ({ ...a, startingPoint: label })); setTimeout(() => setQuizStep(2), 300); }}
                           style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 18px", textAlign: "left", background: selected ? "#1E3F2F" : "#fff", border: `1.5px solid ${selected ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", transition: "all 0.18s", width: "100%" }}
                           onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
                           onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
@@ -1188,7 +1188,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                         <button key={label} onClick={() => {
                           const updated = { ...quizAnswers, challenge: label };
                           setQuizAnswers(updated);
-                          getAdviceWithAnswers(updated);
+                          setTimeout(() => getAdviceWithAnswers(updated), 300);
                         }}
                           style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 18px", textAlign: "left", background: selected ? "#1E3F2F" : "#fff", border: `1.5px solid ${selected ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", transition: "all 0.18s", width: "100%" }}
                           onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
