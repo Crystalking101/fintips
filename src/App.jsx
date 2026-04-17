@@ -1094,60 +1094,122 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 ))}
               </div>
 
+              {/* Q1 — Goal */}
               {quizStep === 0 && (
                 <div key="q1" className="sg">
                   <div>
-                    <h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 8, letterSpacing: -0.5 }}>What are you working on right now?</h2>
+                    <h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 24, letterSpacing: -0.5 }}>What are you working on right now?</h2>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {["Paying off debt", "Building my savings", "Starting to invest", "Rebuilding my credit"].map(opt => (
-                      <button key={opt} onClick={() => { setQuizAnswers(a => ({ ...a, goal: opt })); setQuizStep(1); }}
-                        style={{ padding: "16px 20px", textAlign: "left", background: quizAnswers.goal === opt ? "#1E3F2F" : "#fff", color: quizAnswers.goal === opt ? "#FAF7F1" : "#1A1A18", border: `1.5px solid ${quizAnswers.goal === opt ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", fontFamily: "var(--font-b)", fontSize: 15, fontWeight: 500, transition: "all 0.18s" }}
-                        onMouseEnter={e => { if (quizAnswers.goal !== opt) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
-                        onMouseLeave={e => { if (quizAnswers.goal !== opt) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
-                        {opt}
-                      </button>
-                    ))}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {[
+                      { label: "Paying off debt", sub: "Cards, loans, strategy", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
+                      { label: "Building my savings", sub: "Emergency fund, goals", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg> },
+                      { label: "Starting to invest", sub: "Stocks, 401k, basics", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> },
+                      { label: "Rebuilding my credit", sub: "Score, cards, history", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
+                    ].map(({ label, sub, icon }) => {
+                      const selected = quizAnswers.goal === label;
+                      return (
+                        <button key={label} onClick={() => { setQuizAnswers(a => ({ ...a, goal: label })); setQuizStep(1); }}
+                          style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 18px", textAlign: "left", background: selected ? "#1E3F2F" : "#fff", border: `1.5px solid ${selected ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", transition: "all 0.18s", width: "100%" }}
+                          onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
+                          onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
+                          {/* Icon box */}
+                          <div style={{ width: 44, height: 44, borderRadius: 10, background: selected ? "rgba(255,255,255,0.15)" : "#D4ECD8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: selected ? "#fff" : "#1E3F2F" }}>
+                            {icon}
+                          </div>
+                          {/* Text */}
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontFamily: "var(--font-b)", fontSize: 16, fontWeight: 700, color: selected ? "#FAF7F1" : "#1A1A18", marginBottom: 2 }}>{label}</p>
+                            <p style={{ fontFamily: "var(--font-b)", fontSize: 13, fontWeight: 400, color: selected ? "rgba(250,247,241,0.7)" : "var(--muted)" }}>{sub}</p>
+                          </div>
+                          {/* Checkmark when selected */}
+                          {selected && (
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
+              {/* Q2 — Starting Point */}
               {quizStep === 1 && (
                 <div key="q2" className="sg">
                   <div>
-                    <h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 8, letterSpacing: -0.5 }}>Where would you say you are?</h2>
+                    <h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 24, letterSpacing: -0.5 }}>Where would you say you are?</h2>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {["Just getting started", "I have made some progress", "Getting back on track"].map(opt => (
-                      <button key={opt} onClick={() => { setQuizAnswers(a => ({ ...a, startingPoint: opt })); setQuizStep(2); }}
-                        style={{ padding: "16px 20px", textAlign: "left", background: quizAnswers.startingPoint === opt ? "#1E3F2F" : "#fff", color: quizAnswers.startingPoint === opt ? "#FAF7F1" : "#1A1A18", border: `1.5px solid ${quizAnswers.startingPoint === opt ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", fontFamily: "var(--font-b)", fontSize: 15, fontWeight: 500, transition: "all 0.18s" }}
-                        onMouseEnter={e => { if (quizAnswers.startingPoint !== opt) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
-                        onMouseLeave={e => { if (quizAnswers.startingPoint !== opt) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
-                        {opt}
-                      </button>
-                    ))}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {[
+                      { label: "Just getting started", sub: "New to managing money", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg> },
+                      { label: "I have made some progress", sub: "On the right track", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
+                      { label: "Getting back on track", sub: "Had setbacks, rebuilding", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> },
+                    ].map(({ label, sub, icon }) => {
+                      const selected = quizAnswers.startingPoint === label;
+                      return (
+                        <button key={label} onClick={() => { setQuizAnswers(a => ({ ...a, startingPoint: label })); setQuizStep(2); }}
+                          style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 18px", textAlign: "left", background: selected ? "#1E3F2F" : "#fff", border: `1.5px solid ${selected ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", transition: "all 0.18s", width: "100%" }}
+                          onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
+                          onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
+                          <div style={{ width: 44, height: 44, borderRadius: 10, background: selected ? "rgba(255,255,255,0.15)" : "#D4ECD8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: selected ? "#fff" : "#1E3F2F" }}>
+                            {icon}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontFamily: "var(--font-b)", fontSize: 16, fontWeight: 700, color: selected ? "#FAF7F1" : "#1A1A18", marginBottom: 2 }}>{label}</p>
+                            <p style={{ fontFamily: "var(--font-b)", fontSize: 13, fontWeight: 400, color: selected ? "rgba(250,247,241,0.7)" : "var(--muted)" }}>{sub}</p>
+                          </div>
+                          {selected && (
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
+              {/* Q3 — Biggest Challenge */}
               {quizStep === 2 && (
                 <div key="q3" className="sg">
                   <div>
-                    <h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 8, letterSpacing: -0.5 }}>What trips you up most?</h2>
+                    <h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 24, letterSpacing: -0.5 }}>What trips you up most?</h2>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {["Understanding financial terms", "Staying consistent", "Knowing where to start", "Making my money stretch"].map(opt => (
-                      <button key={opt} onClick={() => {
-                        const updated = { ...quizAnswers, challenge: opt };
-                        setQuizAnswers(updated);
-                        getAdviceWithAnswers(updated);
-                      }}
-                        style={{ padding: "16px 20px", textAlign: "left", background: quizAnswers.challenge === opt ? "#1E3F2F" : "#fff", color: quizAnswers.challenge === opt ? "#FAF7F1" : "#1A1A18", border: `1.5px solid ${quizAnswers.challenge === opt ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", fontFamily: "var(--font-b)", fontSize: 15, fontWeight: 500, transition: "all 0.18s" }}
-                        onMouseEnter={e => { if (quizAnswers.challenge !== opt) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
-                        onMouseLeave={e => { if (quizAnswers.challenge !== opt) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
-                        {opt}
-                      </button>
-                    ))}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {[
+                      { label: "Understanding financial terms", sub: "Jargon, concepts, basics", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
+                      { label: "Staying consistent", sub: "Habits, discipline, routine", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> },
+                      { label: "Knowing where to start", sub: "Direction, first steps", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> },
+                      { label: "Making my money stretch", sub: "Budgeting, spending less", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
+                    ].map(({ label, sub, icon }) => {
+                      const selected = quizAnswers.challenge === label;
+                      return (
+                        <button key={label} onClick={() => {
+                          const updated = { ...quizAnswers, challenge: label };
+                          setQuizAnswers(updated);
+                          getAdviceWithAnswers(updated);
+                        }}
+                          style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 18px", textAlign: "left", background: selected ? "#1E3F2F" : "#fff", border: `1.5px solid ${selected ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", transition: "all 0.18s", width: "100%" }}
+                          onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
+                          onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
+                          <div style={{ width: 44, height: 44, borderRadius: 10, background: selected ? "rgba(255,255,255,0.15)" : "#D4ECD8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: selected ? "#fff" : "#1E3F2F" }}>
+                            {icon}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontFamily: "var(--font-b)", fontSize: 16, fontWeight: 700, color: selected ? "#FAF7F1" : "#1A1A18", marginBottom: 2 }}>{label}</p>
+                            <p style={{ fontFamily: "var(--font-b)", fontSize: 13, fontWeight: 400, color: selected ? "rgba(250,247,241,0.7)" : "var(--muted)" }}>{sub}</p>
+                          </div>
+                          {selected && (
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
