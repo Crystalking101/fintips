@@ -1088,10 +1088,8 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
           {/* 3 QUICK QUESTIONS */}
           {screen === "quiz3" && (
             <div className="sg">
-              <div style={{ display: "flex", gap: 6, marginBottom: 32 }}>
-                {[0,1,2].map(i => (
-                  <div key={i} style={{ flex: 1, height: 3, background: i <= quizStep ? "#1E3F2F" : "rgba(30,63,47,0.15)", transition: "background 0.3s" }} />
-                ))}
+              <div style={{ height: 3, background: "rgba(30,63,47,0.15)", borderRadius: 2, marginBottom: 32, overflow: "hidden" }}>
+                <div style={{ height: "100%", background: "#1E3F2F", borderRadius: 2, width: quizStep === 0 ? "33%" : quizStep === 1 ? "66%" : "100%", transition: "width 0.4s ease" }} />
               </div>
 
               {/* Q1 — Goal */}
