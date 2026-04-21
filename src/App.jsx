@@ -961,6 +961,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
 
+      console.log("GROQ KEY:", GROQ_API_KEY);
       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
