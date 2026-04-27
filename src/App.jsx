@@ -668,8 +668,8 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
         },
         signal: controller.signal,
         body: JSON.stringify({
-          // ✅ DO NOT CHANGE — free model on OpenRouter
-          model: "mistralai/mistral-7b-instruct:free",
+          // ✅ Paid - fast, reliable, cheap (~$0.001 per request)
+          model: "meta-llama/llama-3.1-8b-instruct",
           messages: [{ role: "user", content: prompt }],
           max_tokens: 500,
           temperature: 0.7,
