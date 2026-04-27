@@ -969,7 +969,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
         },
         signal: controller.signal,
         body: JSON.stringify({
-          model: "llama-3.1-8b-instant", 
+          model: "llama3-8b-8192",
           messages: [{ role: "user", content: prompt }],
           max_tokens: 500,
           temperature: 0.7,
