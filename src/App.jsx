@@ -645,12 +645,12 @@ export default function FinTips() {
     go("loading");
     await new Promise(r => setTimeout(r, 150));
 
-    const prompt = `You are a direct, no-nonsense money coach. Here is what this person shared:
+    const prompt = `You are a direct, money coach. Based on this:
 - Goal: ${answers.goal}
 - Where they are: ${answers.startingPoint}
 - Biggest challenge: ${answers.challenge}
 
-Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specific — real numbers only (dollars, %, timeframes). No intros, no fluff, no "great question!", no encouragement filler. Just the advice. Always complete every sentence fully. Plain paragraphs, no bullet points or headers.`;
+Write 3 tips. Each tip is ONE sentence max. Real numbers only. No fluff. Plain paragraphs.`;
 
     const FALLBACK = "Start by automating at least $25 per paycheck directly into a separate savings account — you'll save $650 a year without thinking about it.\n\nIf you have credit card debt, call your card issuer and ask for a lower APR. About 70% of people who ask get one, and even 3% less saves you hundreds annually.\n\nTrack every expense for the next 30 days. Most people find $100–$300 in forgotten subscriptions or habits they can redirect toward their actual goal.";
 
@@ -671,7 +671,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
           // ✅ Paid - fast, reliable, cheap (~$0.001 per request)
           model: "meta-llama/llama-3.1-8b-instruct",
           messages: [{ role: "user", content: prompt }],
-          max_tokens: 500,
+          max_tokens: 200,
           temperature: 0.7,
         }),
       });
