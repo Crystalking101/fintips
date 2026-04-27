@@ -669,7 +669,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
         signal: controller.signal,
         body: JSON.stringify({
           // ✅ DO NOT CHANGE — free model on OpenRouter
-          model: "meta-llama/llama-3.3-70b-instruct:free",
+          model: "mistralai/mistral-7b-instruct:free",
           messages: [{ role: "user", content: prompt }],
           max_tokens: 500,
           temperature: 0.7,
