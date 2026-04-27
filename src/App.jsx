@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 
-// ─── GROQ CONFIG ─────────────────────────────────────────────────────────────
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+// ─── OPENROUTER CONFIG ────────────────────────────────────────────────────────
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 
 // ─── SUPABASE CONFIG ──────────────────────────────────────────────────────────
-// In Vite: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file
-// Use the Publishable key (sb_publishable_...) as VITE_SUPABASE_ANON_KEY
 const SUPABASE_URL = (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL) || "https://YOUR_PROJECT.supabase.co";
 const SUPABASE_ANON_KEY = (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_ANON_KEY) || "YOUR_PUBLISHABLE_KEY";
 
@@ -129,7 +127,6 @@ const ALL_TIPS = [
   { id: "c100", category: "Small Wins", tip: "Paying annual subscriptions instead of monthly saves 15-20% — Amazon Prime, apps, and insurance often offer this.", fact: "If you use it year-round, paying annually almost always wins." },
 ];
 
-// Shuffle tips once per session
 const CURATED_TIPS = [...ALL_TIPS].sort(() => Math.random() - 0.5);
 
 const GOALS = [
@@ -148,10 +145,8 @@ const LOADING_STEPS = [
   { emoji: "✨", text: "Almost ready..." },
 ];
 
-// Floating money particles for splash
 const MONEY_SYMBOLS = ["$", "$", "$", "¢", "%", "$", "💵", "$", "¢", "$", "%", "$", "💰", "$", "$"];
 
-// Goal SVG icons — solid monochrome style
 const IconSavings = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
@@ -183,32 +178,8 @@ const IconHome = () => (
   </svg>
 );
 
-const GOAL_ICONS = {
-  save: IconSavings,
-  travel: IconTravel,
-  debt: IconDebt,
-  invest: IconInvest,
-  emergency: IconShield,
-  home: IconHome,
-};
-const IconTarget = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
-  </svg>
-);
-const IconTrendUp = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
-  </svg>
-);
-const IconUsers = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
-);
+const GOAL_ICONS = { save: IconSavings, travel: IconTravel, debt: IconDebt, invest: IconInvest, emergency: IconShield, home: IconHome };
 
-// Social share icons
 const IconFacebook = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
@@ -242,71 +213,22 @@ const CSS = `
   }
   html, body { height: 100%; background: var(--cream); overflow-x: hidden; }
   .app { min-height: 100vh; width: 100%; background: var(--cream); font-family: var(--font-b); display: flex; flex-direction: column; align-items: center; position: relative; overflow-x: hidden; }
-
-  /* ── Splash ────────────────────────────────────────────────────────────────── */
-  .splash {
-    position: fixed; inset: 0; background: #FAF7F1;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 1000; overflow: hidden;
-  }
+  .splash { position: fixed; inset: 0; background: #FAF7F1; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; overflow: hidden; }
   .splash.exit { animation: splashExit 0.65s cubic-bezier(0.4,0,0.2,1) forwards; }
-  @keyframes splashExit {
-    0%   { opacity: 1; transform: scale(1); }
-    100% { opacity: 0; transform: scale(1.03); pointer-events: none; }
-  }
-
-  /* Money rain particles */
-  .money-particle {
-    position: absolute; color: rgba(30,63,47,0.45);
-    font-family: var(--font-d); font-weight: 700;
-    pointer-events: none; user-select: none;
-    animation: moneyFall linear infinite;
-  }
-  @keyframes moneyFall {
-    0%   { transform: translateY(-60px) rotate(0deg); opacity: 0; }
-    10%  { opacity: 1; }
-    90%  { opacity: 0.6; }
-    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-  }
-
-  /* Floating coins (horizontal drift) */
-  .money-coin {
-    position: absolute; pointer-events: none;
-    animation: coinFloat linear infinite;
-    color: rgba(30,63,47,0.35);
-    font-family: var(--font-d); font-weight: 700;
-  }
-  @keyframes coinFloat {
-    0%   { transform: translateX(-80px) translateY(0) scale(0.8); opacity: 0; }
-    15%  { opacity: 1; }
-    85%  { opacity: 0.7; }
-    100% { transform: translateX(110vw) translateY(-40px) scale(1.1); opacity: 0; }
-  }
-
-  /* Splash headline — single line */
-  .splash-h1 {
-    font-family: 'Instrument Serif', serif; color: var(--forest);
-    text-align: center; line-height: 1.15; letter-spacing: -0.5px;
-    font-size: 36px; font-weight: 400;
-    opacity: 0; animation: splashLineIn 0.8s 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
-    white-space: nowrap; padding: 0 16px;
-  }
+  @keyframes splashExit { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.03); pointer-events: none; } }
+  .money-particle { position: absolute; color: rgba(30,63,47,0.45); font-family: var(--font-d); font-weight: 700; pointer-events: none; user-select: none; animation: moneyFall linear infinite; }
+  @keyframes moneyFall { 0% { transform: translateY(-60px) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.6; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+  .money-coin { position: absolute; pointer-events: none; animation: coinFloat linear infinite; color: rgba(30,63,47,0.35); font-family: var(--font-d); font-weight: 700; }
+  @keyframes coinFloat { 0% { transform: translateX(-80px) translateY(0) scale(0.8); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 0.7; } 100% { transform: translateX(110vw) translateY(-40px) scale(1.1); opacity: 0; } }
+  .splash-h1 { font-family: 'Instrument Serif', serif; color: var(--forest); text-align: center; line-height: 1.15; letter-spacing: -0.5px; font-size: 36px; font-weight: 400; opacity: 0; animation: splashLineIn 0.8s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; white-space: nowrap; padding: 0 16px; }
   .splash-h1 em { font-style: italic; font-weight: 400; color: var(--forest); }
-  .splash-sub {
-    font-family: var(--font-b); font-size: 14px; color: var(--muted);
-    text-align: center; margin-top: 48px; letter-spacing: 0.2px;
-    opacity: 0; animation: splashLineIn 0.7s 0.9s cubic-bezier(0.22,1,0.36,1) forwards;
-  }
-  @keyframes splashLineIn  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-
-  /* ── Orbs ─────────────────────────────────────────────────────────────────── */
+  .splash-sub { font-family: var(--font-b); font-size: 14px; color: var(--muted); text-align: center; margin-top: 48px; letter-spacing: 0.2px; opacity: 0; animation: splashLineIn 0.7s 0.9s cubic-bezier(0.22,1,0.36,1) forwards; }
+  @keyframes splashLineIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
   .orb { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; }
   .orb-1 { top: -100px; right: -80px; width: 320px; height: 320px; background: radial-gradient(circle, rgba(201,168,76,0.13) 0%, transparent 70%); animation: orbFloat 9s ease-in-out infinite; }
   .orb-2 { bottom: -120px; left: -80px; width: 360px; height: 360px; background: radial-gradient(circle, rgba(30,63,47,0.08) 0%, transparent 70%); animation: orbFloat 11s ease-in-out infinite -4s; }
   .orb-3 { top: 40%; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(59,123,168,0.07) 0%, transparent 70%); animation: orbFloat 7s ease-in-out infinite -2s; }
   @keyframes orbFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-18px) scale(1.03); } }
-
-  /* ── Nav ──────────────────────────────────────────────────────────────────── */
   .nav { width: 100%; max-width: 560px; padding: 20px 24px 0; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 10; }
   .logo { display: flex; align-items: center; gap: 9px; cursor: pointer; background: none; border: none; padding: 0; transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1); }
   .logo:hover { transform: translateY(-1px) scale(1.02); }
@@ -315,21 +237,15 @@ const CSS = `
   .logo:hover .logo-icon { box-shadow: 0 4px 16px rgba(30,63,47,0.28); }
   .logo-text { font-family: var(--font-d); font-size: 16px; font-weight: 600; color: var(--forest); letter-spacing: -0.3px; }
   .main { width: 100%; max-width: 560px; padding: 60px 32px 80px; flex: 1; position: relative; z-index: 1; }
-
-  /* ── Screen transitions ───────────────────────────────────────────────────── */
   @keyframes slideInR { from { opacity:0; transform:translateX(44px); } to { opacity:1; transform:translateX(0); } }
   @keyframes slideInL { from { opacity:0; transform:translateX(-44px); } to { opacity:1; transform:translateX(0); } }
   .enter-right { animation: slideInR 0.42s cubic-bezier(0.22,1,0.36,1) forwards; }
   .enter-left  { animation: slideInL 0.42s cubic-bezier(0.22,1,0.36,1) forwards; }
-
-  /* Stagger */
   .sg > * { opacity: 0; animation: sgUp 0.52s cubic-bezier(0.22,1,0.36,1) forwards; }
   .sg > *:nth-child(1){animation-delay:.04s} .sg > *:nth-child(2){animation-delay:.10s}
   .sg > *:nth-child(3){animation-delay:.16s} .sg > *:nth-child(4){animation-delay:.22s}
   .sg > *:nth-child(5){animation-delay:.28s} .sg > *:nth-child(6){animation-delay:.34s}
   @keyframes sgUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
-
-  /* ── Buttons ──────────────────────────────────────────────────────────────── */
   .btn-p { font-family:var(--font-d); font-size:15px; font-weight:600; background:var(--forest); color:var(--cream); border:none; padding:14px 32px; border-radius:100px; cursor:pointer; letter-spacing:0.1px; display:inline-flex; align-items:center; gap:6px; transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease, background 0.15s ease; }
   .btn-p:hover { background:var(--forest-mid); transform:translateY(-2px) scale(1.02); box-shadow:0 6px 24px rgba(30,63,47,0.28); }
   .btn-p:active { transform:translateY(0) scale(0.96); box-shadow:0 2px 8px rgba(30,63,47,0.18); transition-duration:0.08s; }
@@ -338,53 +254,39 @@ const CSS = `
   .btn-g:hover { border-color:var(--forest); background:rgba(30,63,47,0.05); transform:translateY(-1px); }
   .btn-g:active { transform:scale(0.96); transition-duration:0.08s; }
   .btn-g:disabled { opacity:0.3; cursor:not-allowed; transform:none; }
-
-  /* ── Chips ────────────────────────────────────────────────────────────────── */
   .chip { font-family:var(--font-b); font-size:14px; font-weight:500; padding:10px 18px; border-radius:100px; border:1.5px solid var(--border); background:transparent; color:var(--ink); cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; transition:transform 0.24s cubic-bezier(0.34,1.56,0.64,1), background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s; }
   .chip:hover { border-color:var(--forest); background:rgba(30,63,47,0.04); }
   .chip:active { transform:scale(0.94); transition-duration:0.07s; }
   .chip.on { background:var(--forest); color:var(--cream); border-color:var(--forest); transform:scale(1.05); box-shadow:0 4px 14px rgba(30,63,47,0.22); }
   .chip.on:hover { transform:scale(1.07); }
-
-  /* ── Feature icons (monochrome) ───────────────────────────────────────────── */
   .feat-icon { width: 40px; height: 40px; background: rgba(30,63,47,0.08); border-radius: 11px; display: flex; align-items: center; justify-content: center; color: var(--forest); flex-shrink: 0; transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), background 0.2s; cursor: default; }
   .feat-icon:hover { transform: scale(1.12) rotate(-5deg); background: var(--sage); }
-
-  /* ── Tip card ─────────────────────────────────────────────────────────────── */
   .tip-card { background:var(--forest); border-radius:var(--r); padding:32px 28px; color:var(--cream); cursor:grab; user-select:none; position:relative; overflow:hidden; min-height:210px; }
   .tip-card:active { cursor:grabbing; }
   .tip-card::before { content:''; position:absolute; top:-50px; right:-50px; width:200px; height:200px; background:rgba(255,255,255,0.04); border-radius:50%; pointer-events:none; }
   .tip-card::after  { content:''; position:absolute; bottom:-30px; left:-30px; width:140px; height:140px; background:rgba(201,168,76,0.06); border-radius:50%; pointer-events:none; }
   @keyframes cardIn { from { opacity:0; transform:translateY(22px) scale(0.96) rotateX(3deg); } to { opacity:1; transform:translateY(0) scale(1) rotateX(0); } }
   .card-in { animation:cardIn 0.42s cubic-bezier(0.22,1,0.36,1) forwards; transform-style:preserve-3d; }
-
-  /* ── Social share bar ─────────────────────────────────────────────────────── */
   .share-bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:12px; }
   .share-btn { display:inline-flex; align-items:center; gap:5px; font-family:var(--font-b); font-size:12px; font-weight:600; padding:7px 14px; border-radius:100px; border:none; cursor:pointer; transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1); }
   .share-btn:hover { transform:translateY(-1px) scale(1.04); }
   .share-btn:active { transform:scale(0.95); transition-duration:0.07s; }
-  .share-fb  { background:#1877F2; color:#fff; }
+  .share-fb { background:#1877F2; color:#fff; }
   .share-fb:hover { background:#166FE5; box-shadow:0 4px 14px rgba(24,119,242,0.3); }
   .share-native { background:var(--forest); color:var(--cream); }
   .share-native:hover { background:var(--forest-mid); box-shadow:0 4px 14px rgba(30,63,47,0.25); }
   .share-copy { background:rgba(30,63,47,0.08); color:var(--forest); }
   .share-copy:hover { background:var(--sage); box-shadow:0 4px 14px rgba(30,63,47,0.12); }
   .share-label { font-family:var(--font-b); font-size:11px; font-weight:600; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
-
-  /* ── Community card ───────────────────────────────────────────────────────── */
   .com-card { background:#fff; border-radius:var(--r); border:1px solid var(--border); padding:20px 22px; transition:box-shadow 0.2s, transform 0.2s; }
   .com-card:hover { box-shadow:var(--sh); transform:translateY(-1px); }
   @keyframes cardSlideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
   .card-slide { animation:cardSlideUp 0.38s cubic-bezier(0.22,1,0.36,1) both; }
-
-  /* ── Upvote ───────────────────────────────────────────────────────────────── */
   .upvote { display:flex; align-items:center; gap:5px; font-family:var(--font-d); font-size:13px; font-weight:600; color:var(--muted); background:rgba(30,63,47,0.06); border:none; padding:7px 14px; border-radius:100px; cursor:pointer; flex-shrink:0; transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1); }
   .upvote:hover { background:var(--sage); color:var(--forest); transform:scale(1.08); }
   .upvote:active { transform:scale(0.92); transition-duration:0.07s; }
   .upvote.voted { background:var(--sage); color:var(--forest); box-shadow:0 2px 10px rgba(30,63,47,0.14); }
   .upvote.voted:hover { transform:none; }
-
-  /* ── Loading ──────────────────────────────────────────────────────────────── */
   .load-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center; animation:fadeIn 0.4s ease; }
   .ring-wrap { width:84px; height:84px; position:relative; margin-bottom:28px; }
   .ring { position:absolute; inset:0; border-radius:50%; border:2.5px solid transparent; border-top-color:var(--forest); animation:spin 1s linear infinite; }
@@ -401,20 +303,14 @@ const CSS = `
   @keyframes ldotBounce { 0%,100%{transform:translateY(0);opacity:0.5;} 50%{transform:translateY(-9px);opacity:1;} }
   @keyframes stepIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
   .step-in { animation:stepIn 0.38s cubic-bezier(0.22,1,0.36,1); }
-
-  /* ── Progress ─────────────────────────────────────────────────────────────── */
   .prog-bar { display:flex; gap:6px; margin-bottom:36px; }
   .prog-dot { height:5px; border-radius:3px; background:rgba(30,63,47,0.13); flex:0 0 6px; transition:all 0.36s cubic-bezier(0.34,1.56,0.64,1); }
   .prog-dot.done { background:var(--sage-dark); flex:0 0 18px; }
   .prog-dot.active { background:var(--forest); flex:0 0 28px; }
-
-  /* ── Nav dots ─────────────────────────────────────────────────────────────── */
   .ndots { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:18px; }
   .ndot { width:7px; height:7px; border-radius:50%; background:rgba(30,63,47,0.15); transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1); cursor:pointer; border:none; padding:0; }
   .ndot.on { background:var(--forest); transform:scale(1.45); }
   .ndot:hover:not(.on) { background:rgba(30,63,47,0.35); transform:scale(1.2); }
-
-  /* ── Misc ─────────────────────────────────────────────────────────────────── */
   .eyebrow { font-family:var(--font-b); font-size:10px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--gold); }
   .card { background:#fff; border-radius:var(--r); border:1px solid var(--border); box-shadow:var(--sh); }
   .tag { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:100px; background:var(--sage); color:var(--forest); font-size:12px; font-weight:600; font-family:var(--font-b); }
@@ -441,58 +337,28 @@ const CSS = `
 // ─── HOME SCREEN ─────────────────────────────────────────────────────────────
 function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
   const particles = Array.from({ length: 18 }, (_, i) => ({
-    id: i,
-    symbol: MONEY_SYMBOLS[i % MONEY_SYMBOLS.length],
+    id: i, symbol: MONEY_SYMBOLS[i % MONEY_SYMBOLS.length],
     left: `${(i * 5.5 + Math.sin(i) * 8) % 95}%`,
-    size: `${13 + (i % 5) * 5}px`,
-    duration: `${4 + (i % 4) * 1.5}s`,
-    delay: `${(i * 0.4) % 5}s`,
+    size: `${13 + (i % 5) * 5}px`, duration: `${4 + (i % 4) * 1.5}s`, delay: `${(i * 0.4) % 5}s`,
   }));
-
   const coins = Array.from({ length: 8 }, (_, i) => ({
-    id: i,
-    symbol: ["$", "¢", "%", "$"][i % 4],
-    top: `${15 + i * 10}%`,
-    size: `${12 + (i % 3) * 7}px`,
-    duration: `${6 + i * 0.8}s`,
-    delay: `${i * 0.7}s`,
+    id: i, symbol: ["$", "¢", "%", "$"][i % 4],
+    top: `${15 + i * 10}%`, size: `${12 + (i % 3) * 7}px`,
+    duration: `${6 + i * 0.8}s`, delay: `${i * 0.7}s`,
   }));
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "#FAF7F1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", zIndex: 1000, overflow: "hidden", padding: "0 24px 48px" }}>
-      {particles.map(p => (
-        <div key={p.id} className="money-particle" style={{ left: p.left, top: "-60px", fontSize: p.size, animationDuration: p.duration, animationDelay: p.delay }}>{p.symbol}</div>
-      ))}
-      {coins.map(c => (
-        <div key={c.id} className="money-coin" style={{ top: c.top, left: "-80px", fontSize: c.size, animationDuration: c.duration, animationDelay: c.delay }}>{c.symbol}</div>
-      ))}
-
+      {particles.map(p => <div key={p.id} className="money-particle" style={{ left: p.left, top: "-60px", fontSize: p.size, animationDuration: p.duration, animationDelay: p.delay }}>{p.symbol}</div>)}
+      {coins.map(c => <div key={c.id} className="money-coin" style={{ top: c.top, left: "-80px", fontSize: c.size, animationDuration: c.duration, animationDelay: c.delay }}>{c.symbol}</div>)}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", position: "relative", zIndex: 2 }}>
         <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 42, fontWeight: 400, color: "var(--forest)", marginBottom: 12, letterSpacing: -0.5 }}>FinTips</p>
-        <h1 className="splash-h1" style={{ marginBottom: 0 }}>
-          Money advice <em>made for you</em> by you
-        </h1>
-        <p className="splash-sub" style={{ marginTop: 20 }}>
-          Personalized · Anonymous · Community-powered
-        </p>
+        <h1 className="splash-h1" style={{ marginBottom: 0 }}>Money advice <em>made for you</em> by you</h1>
+        <p className="splash-sub" style={{ marginTop: 20 }}>Personalized · Anonymous · Community-powered</p>
       </div>
-
       <div style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 10, position: "relative", zIndex: 2 }}>
-        {[
-          { label: "Get Advice", fn: onGetAdvice, primary: true },
-          { label: "Write Advice", fn: onWriteAdvice, primary: false },
-          { label: "View all Advice", fn: onViewAdvice, primary: false },
-        ].map(({ label, fn, primary }) => (
-          <button key={label} onClick={fn} style={{
-            width: "100%", padding: "14px 8px", borderRadius: 0, cursor: "pointer",
-            background: primary ? "#1E3F2F" : "#fff",
-            color: primary ? "#FAF7F1" : "#1E3F2F",
-            textAlign: "center",
-            border: "1.5px solid #1E3F2F",
-            transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: 14, fontWeight: 600, minHeight: 48,
-          }}
+        {[{ label: "Get Advice", fn: onGetAdvice, primary: true }, { label: "Write Advice", fn: onWriteAdvice, primary: false }, { label: "View all Advice", fn: onViewAdvice, primary: false }].map(({ label, fn, primary }) => (
+          <button key={label} onClick={fn} style={{ width: "100%", padding: "14px 8px", borderRadius: 0, cursor: "pointer", background: primary ? "#1E3F2F" : "#fff", color: primary ? "#FAF7F1" : "#1E3F2F", textAlign: "center", border: "1.5px solid #1E3F2F", transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, minHeight: 48 }}
             onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
             onMouseLeave={e => { e.currentTarget.style.background = primary ? "#1E3F2F" : "#fff"; e.currentTarget.style.color = primary ? "#FAF7F1" : "#1E3F2F"; }}>
             {label}
@@ -511,206 +377,95 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(Math.floor(Math.random() * 20) + 3);
   const [copied, setCopied] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   const shareText = isAdvice
     ? `💡 My personalized money advice from FinTips:\n\n"${text.slice(0, 200)}..."\n\nGet yours free at FinTips 🌿`
     : `💡 ${label} tip from FinTips:\n\n"${text}"\n\nGet yours free at FinTips 🌿`;
 
-  const [sharing, setSharing] = useState(false);
-
-  // ── Build the branded image as a Blob (used by all share methods) ──────────
   function buildCanvas() {
     const canvas = document.createElement("canvas");
     canvas.width = 1080; canvas.height = 1080;
     const ctx = canvas.getContext("2d");
-
-    // Cream background
-    ctx.fillStyle = "#FAF7F1";
-    ctx.fillRect(0, 0, 1080, 1080);
-
-    // White card with subtle border
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(60, 60, 960, 960);
-    ctx.strokeStyle = "rgba(30,63,47,0.11)";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(60, 60, 960, 960);
-
-    // Title — "Your Tips" for advice, category name for Financial Facts
-    ctx.fillStyle = "#1E3F2F";
-    ctx.font = "italic 56px Georgia, serif";
-    ctx.textAlign = "center";
+    ctx.fillStyle = "#FAF7F1"; ctx.fillRect(0, 0, 1080, 1080);
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(60, 60, 960, 960);
+    ctx.strokeStyle = "rgba(30,63,47,0.11)"; ctx.lineWidth = 2; ctx.strokeRect(60, 60, 960, 960);
+    ctx.fillStyle = "#1E3F2F"; ctx.font = "italic 56px Georgia, serif"; ctx.textAlign = "center";
     ctx.fillText(isAdvice ? "Your Tips" : (label || "Financial Facts"), 540, 180);
-
-    // Divider under title
-    ctx.strokeStyle = "rgba(30,63,47,0.11)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(120, 210);
-    ctx.lineTo(960, 210);
-    ctx.stroke();
-
-    // Main tip/advice text — dark ink, centered, wrapping
-    ctx.fillStyle = "#1A1A18";
-    ctx.font = "30px Arial, sans-serif";
-    ctx.textAlign = "center";
+    ctx.strokeStyle = "rgba(30,63,47,0.11)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(120, 210); ctx.lineTo(960, 210); ctx.stroke();
+    ctx.fillStyle = "#1A1A18"; ctx.font = "30px Arial, sans-serif"; ctx.textAlign = "center";
     const maxWidth = 820, lineHeight = 54;
     const paragraphs = text.split("\n\n").filter(Boolean);
     let y = 300;
     for (const para of paragraphs) {
-      const words = para.split(" ");
-      let line = "";
+      const words = para.split(" "); let line = "";
       for (const word of words) {
         const test = line + word + " ";
-        if (ctx.measureText(test).width > maxWidth && line) {
-          ctx.fillText(line.trim(), 540, y);
-          line = word + " ";
-          y += lineHeight;
-        } else line = test;
+        if (ctx.measureText(test).width > maxWidth && line) { ctx.fillText(line.trim(), 540, y); line = word + " "; y += lineHeight; } else line = test;
       }
-      if (line) { ctx.fillText(line.trim(), 540, y); y += lineHeight; }
-      y += 28;
+      if (line) { ctx.fillText(line.trim(), 540, y); y += lineHeight; } y += 28;
     }
-
-    // For Financial Facts — show the fact below in muted text
     if (!isAdvice && fact) {
-      y += 10;
-      ctx.strokeStyle = "rgba(30,63,47,0.08)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(120, y); ctx.lineTo(960, y); ctx.stroke();
-      y += 36;
-      ctx.fillStyle = "#6B6558";
-      ctx.font = "italic 24px Georgia, serif";
-      ctx.textAlign = "center";
+      y += 10; ctx.strokeStyle = "rgba(30,63,47,0.08)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(120, y); ctx.lineTo(960, y); ctx.stroke(); y += 36;
+      ctx.fillStyle = "#6B6558"; ctx.font = "italic 24px Georgia, serif"; ctx.textAlign = "center";
       const fwords = fact.split(" "); let fline = "";
       for (const word of fwords) {
         const test = fline + word + " ";
-        if (ctx.measureText(test).width > maxWidth && fline) {
-          ctx.fillText(fline.trim(), 540, y);
-          fline = word + " "; y += 40;
-        } else fline = test;
+        if (ctx.measureText(test).width > maxWidth && fline) { ctx.fillText(fline.trim(), 540, y); fline = word + " "; y += 40; } else fline = test;
       }
       if (fline) ctx.fillText(fline.trim(), 540, y);
     }
-
-    // Bottom divider + URL
-    ctx.strokeStyle = "rgba(30,63,47,0.11)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(120, 960); ctx.lineTo(960, 960); ctx.stroke();
-    ctx.fillStyle = "#1E3F2F";
-    ctx.font = "bold 22px Arial, sans-serif";
-    ctx.textAlign = "center";
+    ctx.strokeStyle = "rgba(30,63,47,0.11)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(120, 960); ctx.lineTo(960, 960); ctx.stroke();
+    ctx.fillStyle = "#1E3F2F"; ctx.font = "bold 22px Arial, sans-serif"; ctx.textAlign = "center";
     ctx.fillText("fintips.vercel.app", 540, 1005);
-
     return canvas;
   }
 
-  function getImageBlob() {
-    return new Promise((resolve) => {
-      const canvas = buildCanvas();
-      canvas.toBlob(resolve, "image/png");
-    });
-  }
-
-  function handleLike() {
-    if (!liked) { setLiked(true); setLikes(l => l + 1); }
-    else { setLiked(false); setLikes(l => l - 1); }
-  }
-
+  function getImageBlob() { return new Promise(resolve => { const canvas = buildCanvas(); canvas.toBlob(resolve, "image/png"); }); }
+  function handleLike() { if (!liked) { setLiked(true); setLikes(l => l + 1); } else { setLiked(false); setLikes(l => l - 1); } }
   function handleReport(reason) {
     setReported(true); setReportOpen(false);
-    try { supabaseFetch("/reports", { method: "POST", prefer: "return=minimal", body: JSON.stringify({ tip_text: text.slice(0, 200), reason, reported_at: new Date().toISOString() }) }); }
-    catch { /* silent */ }
+    try { supabaseFetch("/reports", { method: "POST", prefer: "return=minimal", body: JSON.stringify({ tip_text: text.slice(0, 200), reason, reported_at: new Date().toISOString() }) }); } catch { }
   }
-
-  // Native share — sends the actual image file on iOS/Android
   async function shareNative() {
     setSharing(true);
     try {
-      const blob = await getImageBlob();
-      const file = new File([blob], "fintips.png", { type: "image/png" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "FinTips", text: shareText });
-      } else if (navigator.share) {
-        await navigator.share({ title: "FinTips", text: shareText });
-      }
-    } catch { /* user cancelled */ }
+      const blob = await getImageBlob(); const file = new File([blob], "fintips.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "FinTips", text: shareText }); }
+      else if (navigator.share) { await navigator.share({ title: "FinTips", text: shareText }); }
+    } catch { }
     setSharing(false); setOpen(false);
   }
-
-  // Download the image to disk
   async function downloadImage() {
-    try {
-      const blob = await getImageBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.download = "fintips-tip.png"; link.href = url;
-      link.click(); URL.revokeObjectURL(url);
-    } catch (err) { console.error("Download failed:", err); }
+    try { const blob = await getImageBlob(); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.download = "fintips-tip.png"; link.href = url; link.click(); URL.revokeObjectURL(url); } catch (err) { console.error("Download failed:", err); }
     setOpen(false);
   }
-
-  function shareLinkedIn() {
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://fintips.vercel.app")}`, "_blank", "width=600,height=400");
-    setOpen(false);
-  }
-
-  // Copy text fallback
+  function shareLinkedIn() { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://fintips.vercel.app")}`, "_blank", "width=600,height=400"); setOpen(false); }
   function copyText() {
-    navigator.clipboard.writeText(shareText)
-      .then(() => { setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500); })
-      .catch(() => {
-        const el = document.createElement("textarea");
-        el.value = shareText; document.body.appendChild(el); el.select();
-        document.execCommand("copy"); document.body.removeChild(el);
-        setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500);
-      });
+    navigator.clipboard.writeText(shareText).then(() => { setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500); }).catch(() => {
+      const el = document.createElement("textarea"); el.value = shareText; document.body.appendChild(el); el.select(); document.execCommand("copy"); document.body.removeChild(el);
+      setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1500);
+    });
   }
-
-  // Share on X — downloads image then opens X so user can attach it
   async function shareX() {
     setSharing(true);
-    try {
-      const blob = await getImageBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.download = "fintips.png"; link.href = url; link.click();
-      URL.revokeObjectURL(url);
-      setTimeout(() => {
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank", "width=600,height=400");
-      }, 800);
-    } catch { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank"); }
+    try { const blob = await getImageBlob(); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.download = "fintips.png"; link.href = url; link.click(); URL.revokeObjectURL(url); setTimeout(() => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank", "width=600,height=400"); }, 800); }
+    catch { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank"); }
     setSharing(false); setOpen(false);
   }
-
-  // Share on Facebook — downloads image then opens Facebook
   async function shareFacebook() {
     setSharing(true);
-    try {
-      const blob = await getImageBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.download = "fintips.png"; link.href = url; link.click();
-      URL.revokeObjectURL(url);
-      setTimeout(() => {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, "_blank", "width=600,height=400");
-      }, 800);
-    } catch { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, "_blank"); }
+    try { const blob = await getImageBlob(); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.download = "fintips.png"; link.href = url; link.click(); URL.revokeObjectURL(url); setTimeout(() => { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, "_blank", "width=600,height=400"); }, 800); }
+    catch { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, "_blank"); }
     setSharing(false); setOpen(false);
   }
-
-  // Share on Instagram — downloads image and tells user to upload it
   async function shareInstagram() {
     setSharing(true);
-    try {
-      const blob = await getImageBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.download = "fintips.png"; link.href = url; link.click();
-      URL.revokeObjectURL(url);
-      setTimeout(() => alert("Image saved! Open Instagram and upload it as a post or story. 🌿"), 600);
-    } catch { alert("Couldn't generate image — try Download as image instead."); }
+    try { const blob = await getImageBlob(); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.download = "fintips.png"; link.href = url; link.click(); URL.revokeObjectURL(url); setTimeout(() => alert("Image saved! Open Instagram and upload it as a post or story. 🌿"), 600); }
+    catch { alert("Couldn't generate image — try Download as image instead."); }
     setSharing(false); setOpen(false);
   }
 
@@ -719,27 +474,22 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
       <div style={{ display: "flex", alignItems: "center", gap: 20, padding: "0", marginTop: 0 }}>
         {!hideHeart && (
           <button onClick={handleLike} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", padding: 0, transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)" }}
-            onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
-            onMouseLeave={e => e.currentTarget.style.transform = ""}>
+            onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"} onMouseLeave={e => e.currentTarget.style.transform = ""}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill={liked ? "#1E3F2F" : "none"} stroke="#1E3F2F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
             </svg>
             <span style={{ fontFamily: "var(--font-d)", fontSize: 14, fontWeight: 600, color: "var(--forest)" }}>{likes}</span>
           </button>
         )}
-
         <button onClick={() => setOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", padding: 0, transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)" }}
-          onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
-          onMouseLeave={e => e.currentTarget.style.transform = ""}>
+          onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"} onMouseLeave={e => e.currentTarget.style.transform = ""}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3F2F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
           </svg>
           <span style={{ fontFamily: "var(--font-d)", fontSize: 14, fontWeight: 600, color: "var(--forest)" }}>Share</span>
         </button>
-
         <button onClick={() => !reported && setReportOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: reported ? "default" : "pointer", padding: 0, transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)", opacity: reported ? 0.4 : 1 }}
-          onMouseEnter={e => { if (!reported) e.currentTarget.style.transform = "scale(1.1)"; }}
-          onMouseLeave={e => e.currentTarget.style.transform = ""}>
+          onMouseEnter={e => { if (!reported) e.currentTarget.style.transform = "scale(1.1)"; }} onMouseLeave={e => e.currentTarget.style.transform = ""}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3F2F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
             <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
           </svg>
@@ -751,39 +501,21 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
         <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
           <div onClick={e => e.stopPropagation()} style={{ background: "#FAF7F1", borderRadius: 0, padding: "28px 24px 40px", paddingBottom: "max(40px, env(safe-area-inset-bottom, 40px))", width: "100%", maxWidth: 560, animation: "sheetUp 0.32s cubic-bezier(0.22,1,0.36,1)" }}>
             <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 24, fontWeight: 400, color: "var(--forest)", marginBottom: 10 }}>Share this {isAdvice ? "advice" : "tip"}</p>
-            <p style={{ fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginBottom: 24, fontStyle: "italic" }}>
-              "{text.slice(0, 120)}{text.length > 120 ? "…" : ""}"
-            </p>
+            <p style={{ fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", lineHeight: 1.6, marginBottom: 24, fontStyle: "italic" }}>"{text.slice(0, 120)}{text.length > 120 ? "…" : ""}"</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {sharing && (
-                <p style={{ textAlign: "center", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", padding: "8px 0" }}>Generating image...</p>
-              )}
-              <button onClick={downloadImage} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                Download image
-              </button>
-              <button onClick={shareX} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                Share on X
-              </button>
-              <button onClick={shareLinkedIn} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                Share on LinkedIn
-              </button>
-              <button onClick={shareFacebook} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                Share on Facebook
-              </button>
-              <button onClick={shareInstagram} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                Share on Instagram
-              </button>
-              <button onClick={copyText} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>
-                {copied ? "Copied!" : "Copy text"}
-              </button>
-              {navigator.share && (
-                <button onClick={shareNative} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "var(--forest)", color: "var(--cream)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 600, border: "none", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>
-                  {sharing ? "Preparing..." : "Share via..."}
-                </button>
-              )}
-              <button onClick={() => setOpen(false)} style={{ width: "100%", padding: "14px", background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", cursor: "pointer", marginTop: 4 }}>
-                Cancel
-              </button>
+              {sharing && <p style={{ textAlign: "center", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", padding: "8px 0" }}>Generating image...</p>}
+              {[
+                { label: "Download image", fn: downloadImage },
+                { label: "Share on X", fn: shareX },
+                { label: "Share on LinkedIn", fn: shareLinkedIn },
+                { label: "Share on Facebook", fn: shareFacebook },
+                { label: "Share on Instagram", fn: shareInstagram },
+              ].map(({ label, fn }) => (
+                <button key={label} onClick={fn} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>{label}</button>
+              ))}
+              <button onClick={copyText} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "#fff", color: "var(--forest)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 500, border: "1.5px solid var(--border)", cursor: "pointer" }}>{copied ? "Copied!" : "Copy text"}</button>
+              {navigator.share && <button onClick={shareNative} disabled={sharing} style={{ width: "100%", padding: "15px", borderRadius: 0, background: "var(--forest)", color: "var(--cream)", fontFamily: "var(--font-d)", fontSize: 15, fontWeight: 600, border: "none", cursor: "pointer", opacity: sharing ? 0.5 : 1 }}>{sharing ? "Preparing..." : "Share via..."}</button>}
+              <button onClick={() => setOpen(false)} style={{ width: "100%", padding: "14px", background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", cursor: "pointer", marginTop: 4 }}>Cancel</button>
             </div>
           </div>
         </div>
@@ -802,9 +534,7 @@ function ShareSheet({ text, label, fact = "", isAdvice = false, hideHeart = fals
                   {reason}
                 </button>
               ))}
-              <button onClick={() => setReportOpen(false)} style={{ width: "100%", padding: "14px", background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", cursor: "pointer", marginTop: 4 }}>
-                Cancel
-              </button>
+              <button onClick={() => setReportOpen(false)} style={{ width: "100%", padding: "14px", background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", cursor: "pointer", marginTop: 4 }}>Cancel</button>
             </div>
           </div>
         </div>
@@ -847,9 +577,7 @@ export default function FinTips() {
   const [dragStart, setDragStart] = useState(null);
 
   useEffect(() => {
-    const s = document.createElement("style");
-    s.textContent = CSS;
-    document.head.appendChild(s);
+    const s = document.createElement("style"); s.textContent = CSS; document.head.appendChild(s);
     return () => document.head.removeChild(s);
   }, []);
 
@@ -862,15 +590,8 @@ export default function FinTips() {
 
   useEffect(() => { if (screen === "community") loadCommunityTips(); }, [screen]);
 
-  function go(to, direction = "right") {
-    setDir(direction); setScreenKey(k => k + 1); setScreen(to);
-  }
-  function goHome() {
-    setShowSplash(true);
-    setForm({ goals: [] });
-    setAdvice("");
-    setQuizAnswers({ goal: "", startingPoint: "", challenge: "" });
-  }
+  function go(to, direction = "right") { setDir(direction); setScreenKey(k => k + 1); setScreen(to); }
+  function goHome() { setShowSplash(true); setForm({ goals: [] }); setAdvice(""); setQuizAnswers({ goal: "", startingPoint: "", challenge: "" }); }
 
   async function loadAdminData() {
     setAdminLoading(true);
@@ -879,28 +600,21 @@ export default function FinTips() {
         supabaseFetch("/community_tips?select=*&order=created_at.desc&limit=100"),
         supabaseFetch("/reports?select=*&order=reported_at.desc&limit=100"),
       ]);
-      setAdminTips(tips || []);
-      setAdminReports(reports || []);
+      setAdminTips(tips || []); setAdminReports(reports || []);
     } catch { showToast("Failed to load admin data"); }
     setAdminLoading(false);
   }
 
   async function adminDeleteTip(id) {
     if (!window.confirm("Delete this tip?")) return;
-    try {
-      await supabaseFetch(`/community_tips?id=eq.${id}`, { method: "DELETE", prefer: "return=minimal" });
-      setAdminTips(p => p.filter(t => t.id !== id));
-      showToast("✅ Tip deleted");
-    } catch { showToast("Failed to delete"); }
+    try { await supabaseFetch(`/community_tips?id=eq.${id}`, { method: "DELETE", prefer: "return=minimal" }); setAdminTips(p => p.filter(t => t.id !== id)); showToast("✅ Tip deleted"); }
+    catch { showToast("Failed to delete"); }
   }
 
   async function adminDeleteReport(id) {
     if (!window.confirm("Delete this report?")) return;
-    try {
-      await supabaseFetch(`/reports?id=eq.${id}`, { method: "DELETE", prefer: "return=minimal" });
-      setAdminReports(p => p.filter(r => r.id !== id));
-      showToast("✅ Report deleted");
-    } catch { showToast("Failed to delete"); }
+    try { await supabaseFetch(`/reports?id=eq.${id}`, { method: "DELETE", prefer: "return=minimal" }); setAdminReports(p => p.filter(r => r.id !== id)); showToast("✅ Report deleted"); }
+    catch { showToast("Failed to delete"); }
   }
 
   async function loadCommunityTips() {
@@ -915,36 +629,19 @@ export default function FinTips() {
     setVotedIds(p => new Set([...p, tip.id]));
     setCommunityTips(p => p.map(t => t.id === tip.id ? { ...t, vote_count: (t.vote_count || 0) + 1 } : t));
     try { await supabaseFetch(`/community_tips?id=eq.${tip.id}`, { method: "PATCH", prefer: "return=minimal", body: JSON.stringify({ vote_count: (tip.vote_count || 0) + 1 }) }); }
-    catch { /* silent */ }
-  }
-
-  async function submitTip() {
-    if (!submitForm.tip.trim() || !submitForm.category || submitForm.tip.length < 20) return;
-    setSubmitting(true);
-    try {
-      await supabaseFetch("/community_tips", { method: "POST", prefer: "return=representation", body: JSON.stringify({ tip_text: submitForm.tip.trim(), category: submitForm.category, vote_count: 0 }) });
-      setSubmitForm({ tip: "", category: "" }); setShowSubmit(false);
-      showToast("✨ Tip shared with the community!"); loadCommunityTips();
-    } catch {
-      setCommunityTips(p => [{ id: Date.now(), tip_text: submitForm.tip.trim(), category: submitForm.category, vote_count: 0 }, ...p]);
-      setSubmitForm({ tip: "", category: "" }); setShowSubmit(false); showToast("✨ Tip shared!");
-    }
-    setSubmitting(false);
+    catch { }
   }
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 3000); }
 
-  // ─── getAdviceWithAnswers: Groq API ──────────────────────────────────────
+  // ─── getAdviceWithAnswers: OpenRouter API ─────────────────────────────────
   async function getAdviceWithAnswers(answers) {
     setAdvice("");
     const categoryMap = {
-      "Paying off debt": "Debt",
-      "Building my savings": "Savings",
-      "Starting to invest": "Investing",
-      "Rebuilding my credit": "Credit",
+      "Paying off debt": "Debt", "Building my savings": "Savings",
+      "Starting to invest": "Investing", "Rebuilding my credit": "Credit",
     };
     setSubmitForm(f => ({ ...f, category: categoryMap[answers.goal] || "General" }));
-
     go("loading");
     await new Promise(r => setTimeout(r, 150));
 
@@ -961,16 +658,18 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${GROQ_API_KEY}`,
+          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+          "HTTP-Referer": "https://fintips.vercel.app",
+          "X-Title": "FinTips",
         },
         signal: controller.signal,
         body: JSON.stringify({
-          // ✅ DO NOT CHANGE — llama3-8b-8192 is deprecated, this is the correct model
-          model: "llama-3.1-8b-instant" ,
+          // ✅ DO NOT CHANGE — free model on OpenRouter
+          model: "meta-llama/llama-3.1-8b-instruct:free",
           messages: [{ role: "user", content: prompt }],
           max_tokens: 500,
           temperature: 0.7,
@@ -980,20 +679,20 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        console.error("Groq error:", res.status, errData);
-        throw new Error(`Groq API error ${res.status}`);
+        console.error("OpenRouter error:", res.status, errData);
+        throw new Error(`OpenRouter API error ${res.status}`);
       }
 
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content;
-      if (!text) throw new Error("Empty response from Groq");
+      if (!text) throw new Error("Empty response from OpenRouter");
 
       setAdvice(text);
       await new Promise(r => setTimeout(r, 50));
       go("advice");
 
     } catch (err) {
-      console.error("Groq failed:", err);
+      console.error("OpenRouter failed:", err);
       setAdvice(FALLBACK);
       await new Promise(r => setTimeout(r, 50));
       go("advice");
@@ -1032,48 +731,22 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
           {/* ADVICE */}
           {screen === "advice" && advice && (
             <div className="sg">
-              <div>
-                <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 42, fontWeight: 400, color: "var(--forest)", letterSpacing: -0.5, textAlign: "center" }}>Your Tips</h2>
-              </div>
+              <div><h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 42, fontWeight: 400, color: "var(--forest)", letterSpacing: -0.5, textAlign: "center" }}>Your Tips</h2></div>
               <div className="card advice-in" style={{ padding: "32px 28px", position: "relative" }}>
                 <div style={{ position: "absolute", top: 18, right: 22, fontSize: 28, opacity: 0.07 }}>🌿</div>
                 {advice.split("\n\n").filter(Boolean).map((para, i, arr) => (
                   <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: "var(--ink)", marginBottom: i < arr.length - 1 ? 16 : 0 }}>{para}</p>
                 ))}
                 <div style={{ marginTop: 20, paddingTop: 18, borderTop: "1px solid var(--border)", display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {form.goals.map(g => {
-                    const goal = GOALS.find(x => x.id === g);
-                    const Icon = GOAL_ICONS[g];
-                    return goal ? (
-                      <span key={g} className="tag" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        {Icon && <Icon />} {goal.label}
-                      </span>
-                    ) : null;
-                  })}
+                  {form.goals.map(g => { const goal = GOALS.find(x => x.id === g); const Icon = GOAL_ICONS[g]; return goal ? <span key={g} className="tag" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{Icon && <Icon />} {goal.label}</span> : null; })}
                 </div>
                 <ShareSheet text={advice} label="advice" isAdvice={true} />
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 40 }}>
-                <button onClick={() => go("tips")} style={{
-                  flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
-                  background: "#1E3F2F", color: "#FAF7F1", textAlign: "center",
-                  border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif",
-                  fontSize: 12, fontWeight: 600, transition: "all 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>
-                  Browse daily tips
-                </button>
-                <button onClick={goHome} style={{
-                  flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
-                  background: "#fff", color: "#1E3F2F", textAlign: "center",
-                  border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif",
-                  fontSize: 12, fontWeight: 600, transition: "all 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#1E3F2F"; }}>
-                  Start over
-                </button>
+                <button onClick={() => go("tips")} style={{ flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer", background: "#1E3F2F", color: "#FAF7F1", textAlign: "center", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, transition: "all 0.2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; }} onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>Browse daily tips</button>
+                <button onClick={goHome} style={{ flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer", background: "#fff", color: "#1E3F2F", textAlign: "center", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, transition: "all 0.2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }} onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#1E3F2F"; }}>Start over</button>
               </div>
             </div>
           )}
@@ -1085,12 +758,9 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 <div style={{ height: "100%", background: "#1E3F2F", borderRadius: 2, width: quizStep === 0 ? "33%" : quizStep === 1 ? "66%" : "100%", transition: "width 0.4s ease" }} />
               </div>
 
-              {/* Q1 — Goal */}
               {quizStep === 0 && (
                 <div key="q1" className="sg">
-                  <div>
-                    <h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 24, letterSpacing: -0.5 }}>What are you working on right now?</h2>
-                  </div>
+                  <div><h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 24, letterSpacing: -0.5 }}>What are you working on right now?</h2></div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {[
                       { label: "Paying off debt", sub: "Cards, loans, strategy", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
@@ -1104,21 +774,12 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                           style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 18px", textAlign: "left", background: selected ? "#1E3F2F" : "#fff", border: `1.5px solid ${selected ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", transition: "all 0.18s", width: "100%" }}
                           onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
                           onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
-                          {/* Icon box */}
-                          <div style={{ width: 44, height: 44, borderRadius: 10, background: selected ? "rgba(255,255,255,0.15)" : "#D4ECD8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: selected ? "#fff" : "#1E3F2F" }}>
-                            {icon}
-                          </div>
-                          {/* Text */}
+                          <div style={{ width: 44, height: 44, borderRadius: 10, background: selected ? "rgba(255,255,255,0.15)" : "#D4ECD8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: selected ? "#fff" : "#1E3F2F" }}>{icon}</div>
                           <div style={{ flex: 1 }}>
                             <p style={{ fontFamily: "var(--font-b)", fontSize: 16, fontWeight: 700, color: selected ? "#FAF7F1" : "#1A1A18", marginBottom: 2 }}>{label}</p>
                             <p style={{ fontFamily: "var(--font-b)", fontSize: 13, fontWeight: 400, color: selected ? "rgba(250,247,241,0.7)" : "var(--muted)" }}>{sub}</p>
                           </div>
-                          {/* Checkmark when selected */}
-                          {selected && (
-                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            </div>
-                          )}
+                          {selected && <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>}
                         </button>
                       );
                     })}
@@ -1126,12 +787,9 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               )}
 
-              {/* Q2 — Starting Point */}
               {quizStep === 1 && (
                 <div key="q2" className="sg">
-                  <div>
-                    <h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 24, letterSpacing: -0.5 }}>Where would you say you are?</h2>
-                  </div>
+                  <div><h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 24, letterSpacing: -0.5 }}>Where would you say you are?</h2></div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {[
                       { label: "Just getting started", sub: "New to managing money", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg> },
@@ -1144,18 +802,12 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                           style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 18px", textAlign: "left", background: selected ? "#1E3F2F" : "#fff", border: `1.5px solid ${selected ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", transition: "all 0.18s", width: "100%" }}
                           onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
                           onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
-                          <div style={{ width: 44, height: 44, borderRadius: 10, background: selected ? "rgba(255,255,255,0.15)" : "#D4ECD8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: selected ? "#fff" : "#1E3F2F" }}>
-                            {icon}
-                          </div>
+                          <div style={{ width: 44, height: 44, borderRadius: 10, background: selected ? "rgba(255,255,255,0.15)" : "#D4ECD8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: selected ? "#fff" : "#1E3F2F" }}>{icon}</div>
                           <div style={{ flex: 1 }}>
                             <p style={{ fontFamily: "var(--font-b)", fontSize: 16, fontWeight: 700, color: selected ? "#FAF7F1" : "#1A1A18", marginBottom: 2 }}>{label}</p>
                             <p style={{ fontFamily: "var(--font-b)", fontSize: 13, fontWeight: 400, color: selected ? "rgba(250,247,241,0.7)" : "var(--muted)" }}>{sub}</p>
                           </div>
-                          {selected && (
-                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            </div>
-                          )}
+                          {selected && <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>}
                         </button>
                       );
                     })}
@@ -1163,12 +815,9 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                 </div>
               )}
 
-              {/* Q3 — Biggest Challenge */}
               {quizStep === 2 && (
                 <div key="q3" className="sg">
-                  <div>
-                    <h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 24, letterSpacing: -0.5 }}>What trips you up most?</h2>
-                  </div>
+                  <div><h2 style={{ fontFamily: "var(--font-d)", fontSize: 28, fontWeight: 700, color: "var(--forest)", marginBottom: 24, letterSpacing: -0.5 }}>What trips you up most?</h2></div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {[
                       { label: "Understanding financial terms", sub: "Jargon, concepts, basics", icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
@@ -1178,26 +827,16 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                     ].map(({ label, sub, icon }) => {
                       const selected = quizAnswers.challenge === label;
                       return (
-                        <button key={label} onClick={() => {
-                          const updated = { ...quizAnswers, challenge: label };
-                          setQuizAnswers(updated);
-                          setTimeout(() => getAdviceWithAnswers(updated), 300);
-                        }}
+                        <button key={label} onClick={() => { const updated = { ...quizAnswers, challenge: label }; setQuizAnswers(updated); setTimeout(() => getAdviceWithAnswers(updated), 300); }}
                           style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 18px", textAlign: "left", background: selected ? "#1E3F2F" : "#fff", border: `1.5px solid ${selected ? "#1E3F2F" : "rgba(30,63,47,0.15)"}`, borderRadius: 0, cursor: "pointer", transition: "all 0.18s", width: "100%" }}
                           onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = "#1E3F2F"; e.currentTarget.style.background = "rgba(30,63,47,0.04)"; }}}
                           onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.15)"; e.currentTarget.style.background = "#fff"; }}}>
-                          <div style={{ width: 44, height: 44, borderRadius: 10, background: selected ? "rgba(255,255,255,0.15)" : "#D4ECD8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: selected ? "#fff" : "#1E3F2F" }}>
-                            {icon}
-                          </div>
+                          <div style={{ width: 44, height: 44, borderRadius: 10, background: selected ? "rgba(255,255,255,0.15)" : "#D4ECD8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: selected ? "#fff" : "#1E3F2F" }}>{icon}</div>
                           <div style={{ flex: 1 }}>
                             <p style={{ fontFamily: "var(--font-b)", fontSize: 16, fontWeight: 700, color: selected ? "#FAF7F1" : "#1A1A18", marginBottom: 2 }}>{label}</p>
                             <p style={{ fontFamily: "var(--font-b)", fontSize: 13, fontWeight: 400, color: selected ? "rgba(250,247,241,0.7)" : "var(--muted)" }}>{sub}</p>
                           </div>
-                          {selected && (
-                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            </div>
-                          )}
+                          {selected && <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#C9A84C", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>}
                         </button>
                       );
                     })}
@@ -1207,8 +846,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
 
               <button onClick={() => quizStep === 0 ? setShowSplash(true) : setQuizStep(s => s - 1)}
                 style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", padding: "12px 0", marginTop: 8, transition: "color 0.2s", minHeight: 44 }}
-                onMouseEnter={e => e.currentTarget.style.color = "var(--forest)"}
-                onMouseLeave={e => e.currentTarget.style.color = "var(--muted)"}>
+                onMouseEnter={e => e.currentTarget.style.color = "var(--forest)"} onMouseLeave={e => e.currentTarget.style.color = "var(--muted)"}>
                 ← Back
               </button>
             </div>
@@ -1217,9 +855,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
           {/* TIPS */}
           {screen === "tips" && (
             <div className="sg">
-              <div>
-                <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 42, fontWeight: 400, color: "var(--forest)", marginBottom: 20, letterSpacing: -0.5, textAlign: "center" }}>Financial Facts</h2>
-              </div>
+              <div><h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 42, fontWeight: 400, color: "var(--forest)", marginBottom: 20, letterSpacing: -0.5, textAlign: "center" }}>Financial Facts</h2></div>
               <div style={{ perspective: "1000px" }}>
                 <div key={tipKey} className="tip-card card-in" onMouseDown={drag} onMouseUp={drop} onTouchStart={drag} onTouchEnd={drop}>
                   <p className="eyebrow" style={{ color: "var(--gold)", marginBottom: 12 }}>{CURATED_TIPS[tipIndex].category}</p>
@@ -1232,38 +868,14 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
               <div style={{ position: "relative", zIndex: 10, marginTop: 28 }}>
                 <ShareSheet text={CURATED_TIPS[tipIndex].tip} label={CURATED_TIPS[tipIndex].category} />
               </div>
-
               <div style={{ display: "flex", gap: 10, marginTop: 60 }}>
-                <button onClick={() => go("quiz3")} style={{
-                  flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
-                  background: "#1E3F2F", color: "#FAF7F1", textAlign: "center",
-                  border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif",
-                  fontSize: 12, fontWeight: 600, transition: "all 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>
-                  Get Advice
-                </button>
-                <button onClick={() => go("writeadvice")} style={{
-                  flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
-                  background: "#fff", color: "#1E3F2F", textAlign: "center",
-                  border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif",
-                  fontSize: 12, fontWeight: 600, transition: "all 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#1E3F2F"; }}>
-                  Write Advice
-                </button>
-                <button onClick={() => go("community")} style={{
-                  flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
-                  background: "#fff", color: "#1E3F2F", textAlign: "center",
-                  border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif",
-                  fontSize: 12, fontWeight: 600, transition: "all 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#1E3F2F"; }}>
-                  View all Advice
-                </button>
+                {[{ label: "Get Advice", fn: () => go("quiz3"), primary: true }, { label: "Write Advice", fn: () => go("writeadvice"), primary: false }, { label: "View all Advice", fn: () => go("community"), primary: false }].map(({ label, fn, primary }) => (
+                  <button key={label} onClick={fn} style={{ flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer", background: primary ? "#1E3F2F" : "#fff", color: primary ? "#FAF7F1" : "#1E3F2F", textAlign: "center", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, transition: "all 0.2s" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = primary ? "#1E3F2F" : "#fff"; e.currentTarget.style.color = primary ? "#FAF7F1" : "#1E3F2F"; }}>
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
           )}
@@ -1272,95 +884,48 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
           {screen === "writeadvice" && (
             <div className="sg">
               <div style={{ textAlign: "center", marginBottom: 28 }}>
-                <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 26, fontWeight: 400, color: "var(--forest)", lineHeight: 1.3, marginBottom: 10 }}>
-                  Money advice made for you by you
-                </h2>
-                <p style={{ fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>
-                  What's the best money advice you'd pass on to someone else?
-                </p>
+                <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 26, fontWeight: 400, color: "var(--forest)", lineHeight: 1.3, marginBottom: 10 }}>Money advice made for you by you</h2>
+                <p style={{ fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>What's the best money advice you'd pass on to someone else?</p>
               </div>
-
               <div style={{ background: "#fff", border: "1.5px solid #1E3F2F", padding: "24px" }}>
                 <div style={{ marginBottom: 20 }}>
                   <label className="form-label" style={{ fontSize: 15, marginBottom: 10 }}>Your name <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span></label>
-                  <input
-                    type="text"
-                    placeholder=""
-                    value={submitForm.name || ""}
-                    onChange={e => setSubmitForm(f => ({ ...f, name: e.target.value }))}
-                    style={{ width: "100%", padding: "12px 14px", border: "1.5px solid var(--border)", fontFamily: "var(--font-b)", fontSize: 16, background: "var(--cream)", color: "var(--ink)", outline: "none", borderRadius: 0 }}
-                  />
+                  <input type="text" placeholder="" value={submitForm.name || ""} onChange={e => setSubmitForm(f => ({ ...f, name: e.target.value }))} style={{ width: "100%", padding: "12px 14px", border: "1.5px solid var(--border)", fontFamily: "var(--font-b)", fontSize: 16, background: "var(--cream)", color: "var(--ink)", outline: "none", borderRadius: 0 }} />
                 </div>
-
                 <div style={{ marginBottom: 20 }}>
                   <label className="form-label" style={{ fontSize: 15, marginBottom: 10 }}>Category</label>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {["Debt", "Savings", "Investing", "Credit", "General"].map(cat => (
-                      <button key={cat} onClick={() => setSubmitForm(f => ({ ...f, category: cat }))} style={{
-                        padding: "8px 16px", borderRadius: 0, cursor: "pointer",
-                        background: submitForm.category === cat ? "#1E3F2F" : "#fff",
-                        color: submitForm.category === cat ? "#FAF7F1" : "#1E3F2F",
-                        border: `1.5px solid ${submitForm.category === cat ? "#1E3F2F" : "rgba(30,63,47,0.25)"}`,
-                        fontFamily: "var(--font-b)", fontSize: 13, fontWeight: 600,
-                        transition: "all 0.18s",
-                      }}
-                        onMouseEnter={e => { if (submitForm.category !== cat) { e.currentTarget.style.borderColor = "#1E3F2F"; }}}
-                        onMouseLeave={e => { if (submitForm.category !== cat) { e.currentTarget.style.borderColor = "rgba(30,63,47,0.25)"; }}}>
+                      <button key={cat} onClick={() => setSubmitForm(f => ({ ...f, category: cat }))} style={{ padding: "8px 16px", borderRadius: 0, cursor: "pointer", background: submitForm.category === cat ? "#1E3F2F" : "#fff", color: submitForm.category === cat ? "#FAF7F1" : "#1E3F2F", border: `1.5px solid ${submitForm.category === cat ? "#1E3F2F" : "rgba(30,63,47,0.25)"}`, fontFamily: "var(--font-b)", fontSize: 13, fontWeight: 600, transition: "all 0.18s" }}
+                        onMouseEnter={e => { if (submitForm.category !== cat) e.currentTarget.style.borderColor = "#1E3F2F"; }}
+                        onMouseLeave={e => { if (submitForm.category !== cat) e.currentTarget.style.borderColor = "rgba(30,63,47,0.25)"; }}>
                         {cat}
                       </button>
                     ))}
                   </div>
                 </div>
-
                 <div style={{ marginBottom: 8 }}>
                   <label className="form-label" style={{ fontSize: 15, marginBottom: 10 }}>Your advice</label>
-                  <textarea
-                    rows={6}
-                    maxLength={500}
-                    placeholder="Share something that changed how you think about money..."
-                    value={submitForm.tip}
-                    onChange={e => setSubmitForm(f => ({ ...f, tip: e.target.value }))}
-                    style={{ borderRadius: 0 }}
-                  />
+                  <textarea rows={6} maxLength={500} placeholder="Share something that changed how you think about money..." value={submitForm.tip} onChange={e => setSubmitForm(f => ({ ...f, tip: e.target.value }))} style={{ borderRadius: 0 }} />
                   <p className="char-count">{submitForm.tip.length}/500</p>
                 </div>
               </div>
-
               <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-                <button onClick={goHome} style={{
-                  flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer",
-                  background: "#fff", color: "#1E3F2F", textAlign: "center",
-                  border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif",
-                  fontSize: 12, fontWeight: 600, transition: "all 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#1E3F2F"; }}>
-                  Back
-                </button>
-                <button
-                  disabled={submitForm.tip.length < 20 || !submitForm.category || submitting}
+                <button onClick={goHome} style={{ flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer", background: "#fff", color: "#1E3F2F", textAlign: "center", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, transition: "all 0.2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }} onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#1E3F2F"; }}>Back</button>
+                <button disabled={submitForm.tip.length < 20 || !submitForm.category || submitting}
                   onClick={async () => {
                     setSubmitting(true);
                     try {
                       await supabaseFetch("/community_tips", { method: "POST", prefer: "return=representation", body: JSON.stringify({ tip_text: submitForm.tip.trim(), category: submitForm.category || "General", author_name: submitForm.name || "Anonymous", vote_count: 0 }) });
-                      setSubmitForm({ tip: "", category: "", name: "" });
-                      showToast("✨ Sent to a stranger!");
-                      go("community");
+                      setSubmitForm({ tip: "", category: "", name: "" }); showToast("✨ Sent to a stranger!"); go("community");
                     } catch {
                       setCommunityTips(p => [{ id: Date.now(), tip_text: submitForm.tip.trim(), category: "General", vote_count: 0 }, ...p]);
-                      setSubmitForm({ tip: "", category: "", name: "" });
-                      showToast("✨ Sent to a stranger!");
-                      go("community");
+                      setSubmitForm({ tip: "", category: "", name: "" }); showToast("✨ Sent to a stranger!"); go("community");
                     }
                     setSubmitting(false);
                   }}
-                  style={{
-                    flex: 2, padding: "12px 8px", borderRadius: 0, cursor: submitForm.tip.length < 20 ? "not-allowed" : "pointer",
-                    background: submitForm.tip.length >= 20 && submitForm.category ? "#1E3F2F" : "rgba(30,63,47,0.3)",
-                    color: "#FAF7F1", textAlign: "center",
-                    border: "none", fontFamily: "'Outfit', sans-serif",
-                    fontSize: 12, fontWeight: 600, transition: "all 0.2s",
-                  }}>
+                  style={{ flex: 2, padding: "12px 8px", borderRadius: 0, cursor: submitForm.tip.length < 20 ? "not-allowed" : "pointer", background: submitForm.tip.length >= 20 && submitForm.category ? "#1E3F2F" : "rgba(30,63,47,0.3)", color: "#FAF7F1", textAlign: "center", border: "none", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, transition: "all 0.2s" }}>
                   {submitting ? "Sending..." : "Send it to a stranger"}
                 </button>
               </div>
@@ -1370,99 +935,49 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
           {/* COMMUNITY */}
           {screen === "community" && (
             <div className="sg">
-              <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 26, fontWeight: 400, color: "var(--forest)", textAlign: "center", marginBottom: 24, lineHeight: 1.3 }}>
-                Money advice made for you by you
-              </h2>
-
+              <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 26, fontWeight: 400, color: "var(--forest)", textAlign: "center", marginBottom: 24, lineHeight: 1.3 }}>Money advice made for you by you</h2>
               <div style={{ display: "flex", gap: 10, marginBottom: 32 }}>
-                <button onClick={() => go("quiz3")} style={{
-                  flex: 1, padding: "16px 8px", borderRadius: 0, cursor: "pointer",
-                  background: "#1E3F2F", color: "#FAF7F1", textAlign: "center",
-                  border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif",
-                  fontSize: 12, fontWeight: 600, transition: "all 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>
-                  Get an advice
-                </button>
-                <button onClick={() => go("writeadvice")} style={{
-                  flex: 1, padding: "16px 8px", borderRadius: 0, cursor: "pointer",
-                  background: "#fff", color: "#1E3F2F", textAlign: "center",
-                  border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif",
-                  fontSize: 12, fontWeight: 600, transition: "all 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#1E3F2F"; }}>
-                  Write an advice
-                </button>
-              </div>
-
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {["All", "Debt", "Savings", "Investing", "Credit", "General"].map(cat => (
-                    <button key={cat} onClick={() => setActiveCategory(cat)} style={{
-                      padding: "7px 14px", borderRadius: 0, cursor: "pointer",
-                      background: activeCategory === cat ? "#1E3F2F" : "#fff",
-                      color: activeCategory === cat ? "#FAF7F1" : "#1E3F2F",
-                      border: "1.5px solid #1E3F2F",
-                      fontFamily: "'Outfit', sans-serif", fontSize: 11, fontWeight: 600,
-                      transition: "all 0.18s",
-                    }}>
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
-                <p style={{ fontFamily: "var(--font-b)", fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>Sort:</p>
-                {["Most loved", "Newest"].map(s => (
-                  <button key={s} onClick={() => setActiveSort(s)} style={{
-                    padding: "6px 14px", borderRadius: 0, cursor: "pointer",
-                    background: activeSort === s ? "#1E3F2F" : "#fff",
-                    color: activeSort === s ? "#FAF7F1" : "#1E3F2F",
-                    border: "1.5px solid #1E3F2F",
-                    fontFamily: "'Outfit', sans-serif", fontSize: 11, fontWeight: 600,
-                    transition: "all 0.18s",
-                  }}>
-                    {s}
+                {[{ label: "Get an advice", fn: () => go("quiz3"), primary: true }, { label: "Write an advice", fn: () => go("writeadvice"), primary: false }].map(({ label, fn, primary }) => (
+                  <button key={label} onClick={fn} style={{ flex: 1, padding: "16px 8px", borderRadius: 0, cursor: "pointer", background: primary ? "#1E3F2F" : "#fff", color: primary ? "#FAF7F1" : "#1E3F2F", textAlign: "center", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, transition: "all 0.2s" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = primary ? "#1E3F2F" : "#fff"; e.currentTarget.style.color = primary ? "#FAF7F1" : "#1E3F2F"; }}>
+                    {label}
                   </button>
                 ))}
               </div>
-
-              {loadingCommunity ? (
-                <div style={{ padding: "56px 0", textAlign: "center" }}>
-                  <div className="spinner" />
-                  <p style={{ marginTop: 16, fontSize: 14, color: "var(--muted)" }}>Loading...</p>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {["All", "Debt", "Savings", "Investing", "Credit", "General"].map(cat => (
+                    <button key={cat} onClick={() => setActiveCategory(cat)} style={{ padding: "7px 14px", borderRadius: 0, cursor: "pointer", background: activeCategory === cat ? "#1E3F2F" : "#fff", color: activeCategory === cat ? "#FAF7F1" : "#1E3F2F", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 11, fontWeight: 600, transition: "all 0.18s" }}>{cat}</button>
+                  ))}
                 </div>
+              </div>
+              <div style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
+                <p style={{ fontFamily: "var(--font-b)", fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>Sort:</p>
+                {["Most loved", "Newest"].map(s => (
+                  <button key={s} onClick={() => setActiveSort(s)} style={{ padding: "6px 14px", borderRadius: 0, cursor: "pointer", background: activeSort === s ? "#1E3F2F" : "#fff", color: activeSort === s ? "#FAF7F1" : "#1E3F2F", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 11, fontWeight: 600, transition: "all 0.18s" }}>{s}</button>
+                ))}
+              </div>
+              {loadingCommunity ? (
+                <div style={{ padding: "56px 0", textAlign: "center" }}><div className="spinner" /><p style={{ marginTop: 16, fontSize: 14, color: "var(--muted)" }}>Loading...</p></div>
               ) : communityTips.length === 0 ? (
                 <div className="empty">
                   <p style={{ fontFamily: "var(--font-d)", fontSize: 18, fontWeight: 600, color: "var(--forest)", marginBottom: 8 }}>Be the first to share</p>
                   <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.65, marginBottom: 20 }}>No advice yet. Share something that has helped you.</p>
-                  <button onClick={() => go("writeadvice")} style={{ padding: "12px 24px", background: "#1E3F2F", color: "#FAF7F1", border: "none", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                    Write advice →
-                  </button>
+                  <button onClick={() => go("writeadvice")} style={{ padding: "12px 24px", background: "#1E3F2F", color: "#FAF7F1", border: "none", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Write advice →</button>
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {communityTips
-                    .filter(tip => activeCategory === "All" || tip.category === activeCategory)
-                    .sort((a, b) => activeSort === "Most loved"
-                      ? (b.vote_count || 0) - (a.vote_count || 0)
-                      : new Date(b.created_at) - new Date(a.created_at))
+                  {communityTips.filter(tip => activeCategory === "All" || tip.category === activeCategory)
+                    .sort((a, b) => activeSort === "Most loved" ? (b.vote_count || 0) - (a.vote_count || 0) : new Date(b.created_at) - new Date(a.created_at))
                     .map((tip, i) => (
                     <div key={tip.id} className="com-card card-slide" style={{ animationDelay: `${i * 0.05}s`, padding: "20px" }}>
-                      {tip.category && (
-                        <span className="tag" style={{ marginBottom: 10, display: "inline-flex" }}>{tip.category}</span>
-                      )}
+                      {tip.category && <span className="tag" style={{ marginBottom: 10, display: "inline-flex" }}>{tip.category}</span>}
                       <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--ink)", marginBottom: 4, textAlign: "left" }}>{tip.tip_text}</p>
-                      {tip.author_name && tip.author_name !== "Anonymous" && (
-                        <p style={{ fontSize: 12, color: "#1E3F2F", marginTop: 8, textAlign: "center", fontWeight: 600 }}>{tip.author_name}</p>
-                      )}
+                      {tip.author_name && tip.author_name !== "Anonymous" && <p style={{ fontSize: 12, color: "#1E3F2F", marginTop: 8, textAlign: "center", fontWeight: 600 }}>{tip.author_name}</p>}
                       <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
                         <button onClick={() => upvote(tip)} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1, transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)" }}
-                          onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
-                          onMouseLeave={e => e.currentTarget.style.transform = ""}>
+                          onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"} onMouseLeave={e => e.currentTarget.style.transform = ""}>
                           <svg width="20" height="20" viewBox="0 0 24 24" fill={votedIds.has(tip.id) ? "#1E3F2F" : "none"} stroke="#1E3F2F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle" }}>
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                           </svg>
@@ -1474,13 +989,9 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                   ))}
                 </div>
               )}
-
               <div style={{ marginTop: 32, textAlign: "center" }}>
                 <button onClick={goHome} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", transition: "color 0.2s" }}
-                  onMouseEnter={e => e.currentTarget.style.color = "var(--forest)"}
-                  onMouseLeave={e => e.currentTarget.style.color = "var(--muted)"}>
-                  ← Back to home
-                </button>
+                  onMouseEnter={e => e.currentTarget.style.color = "var(--forest)"} onMouseLeave={e => e.currentTarget.style.color = "var(--muted)"}>← Back to home</button>
               </div>
             </div>
           )}
@@ -1491,28 +1002,10 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
       {/* LOADING SCREEN */}
       {screen === "loading" && (
         <div style={{ position: "fixed", inset: 0, background: "var(--cream)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 50, overflow: "hidden", animation: "fadeIn 0.3s ease" }}>
-          {Array.from({ length: 18 }, (_, i) => (
-            <div key={`lp-${i}`} className="money-particle" style={{
-              left: `${(i * 5.5 + Math.sin(i) * 8) % 95}%`,
-              top: "-60px",
-              fontSize: `${13 + (i % 5) * 5}px`,
-              animationDuration: `${4 + (i % 4) * 1.5}s`,
-              animationDelay: `${(i * 0.4) % 5}s`,
-            }}>{MONEY_SYMBOLS[i % MONEY_SYMBOLS.length]}</div>
-          ))}
-          {Array.from({ length: 8 }, (_, i) => (
-            <div key={`lc-${i}`} className="money-coin" style={{
-              top: `${15 + i * 10}%`,
-              left: "-80px",
-              fontSize: `${12 + (i % 3) * 7}px`,
-              animationDuration: `${6 + i * 0.8}s`,
-              animationDelay: `${i * 0.7}s`,
-            }}>{["$", "¢", "%", "$"][i % 4]}</div>
-          ))}
+          {Array.from({ length: 18 }, (_, i) => <div key={`lp-${i}`} className="money-particle" style={{ left: `${(i * 5.5 + Math.sin(i) * 8) % 95}%`, top: "-60px", fontSize: `${13 + (i % 5) * 5}px`, animationDuration: `${4 + (i % 4) * 1.5}s`, animationDelay: `${(i * 0.4) % 5}s` }}>{MONEY_SYMBOLS[i % MONEY_SYMBOLS.length]}</div>)}
+          {Array.from({ length: 8 }, (_, i) => <div key={`lc-${i}`} className="money-coin" style={{ top: `${15 + i * 10}%`, left: "-80px", fontSize: `${12 + (i % 3) * 7}px`, animationDuration: `${6 + i * 0.8}s`, animationDelay: `${i * 0.7}s` }}>{["$", "¢", "%", "$"][i % 4]}</div>)}
           <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-            <p key={loadStep} className="step-in" style={{ fontFamily: "var(--font-d)", fontSize: 22, fontWeight: 700, color: "var(--forest)", letterSpacing: -0.5, marginBottom: 8 }}>
-              {LOADING_STEPS[loadStep].text}
-            </p>
+            <p key={loadStep} className="step-in" style={{ fontFamily: "var(--font-d)", fontSize: 22, fontWeight: 700, color: "var(--forest)", letterSpacing: -0.5, marginBottom: 8 }}>{LOADING_STEPS[loadStep].text}</p>
             <div className="load-dots" style={{ justifyContent: "center", marginTop: 24 }}>
               <div className="ldot" /><div className="ldot" /><div className="ldot" />
             </div>
@@ -1529,50 +1022,29 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
             <div style={{ maxWidth: 400, margin: "80px auto", textAlign: "center" }}>
               <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 32, color: "#1E3F2F", marginBottom: 8 }}>FinTips Admin</p>
               <p style={{ fontFamily: "var(--font-b)", fontSize: 14, color: "var(--muted)", marginBottom: 32 }}>Enter your admin password to continue</p>
-              <input
-                type="password"
-                placeholder="Password"
-                value={adminPass}
-                onChange={e => setAdminPass(e.target.value)}
+              <input type="password" placeholder="Password" value={adminPass} onChange={e => setAdminPass(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && adminPass === ADMIN_PASSWORD) { setAdminAuthed(true); loadAdminData(); } }}
-                style={{ width: "100%", padding: "14px", border: "1.5px solid #1E3F2F", fontFamily: "var(--font-b)", fontSize: 14, background: "#fff", marginBottom: 12, borderRadius: 0, outline: "none" }}
-              />
+                style={{ width: "100%", padding: "14px", border: "1.5px solid #1E3F2F", fontFamily: "var(--font-b)", fontSize: 14, background: "#fff", marginBottom: 12, borderRadius: 0, outline: "none" }} />
               <button onClick={() => { if (adminPass === ADMIN_PASSWORD) { setAdminAuthed(true); loadAdminData(); } else showToast("Wrong password"); }}
-                style={{ width: "100%", padding: "14px", background: "#1E3F2F", color: "#FAF7F1", border: "none", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-                Enter
-              </button>
+                style={{ width: "100%", padding: "14px", background: "#1E3F2F", color: "#FAF7F1", border: "none", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Enter</button>
               <button onClick={() => { setShowAdmin(false); window.location.hash = ""; }}
-                style={{ marginTop: 16, background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", cursor: "pointer" }}>
-                ← Back to app
-              </button>
+                style={{ marginTop: 16, background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", cursor: "pointer" }}>← Back to app</button>
             </div>
           ) : (
             <div style={{ maxWidth: 700, margin: "0 auto" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
                 <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 28, color: "#1E3F2F" }}>FinTips Admin</p>
                 <button onClick={() => { setShowAdmin(false); setAdminAuthed(false); setAdminPass(""); window.location.hash = ""; }}
-                  style={{ background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", cursor: "pointer" }}>
-                  ← Exit admin
-                </button>
+                  style={{ background: "none", border: "none", fontFamily: "var(--font-b)", fontSize: 13, color: "var(--muted)", cursor: "pointer" }}>← Exit admin</button>
               </div>
-
               <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
                 {["tips", "reports"].map(tab => (
-                  <button key={tab} onClick={() => setAdminTab(tab)} style={{
-                    padding: "10px 24px", borderRadius: 0, cursor: "pointer",
-                    background: adminTab === tab ? "#1E3F2F" : "#fff",
-                    color: adminTab === tab ? "#FAF7F1" : "#1E3F2F",
-                    border: "1.5px solid #1E3F2F",
-                    fontFamily: "'Outfit', sans-serif", fontSize: 13, fontWeight: 600,
-                  }}>
+                  <button key={tab} onClick={() => setAdminTab(tab)} style={{ padding: "10px 24px", borderRadius: 0, cursor: "pointer", background: adminTab === tab ? "#1E3F2F" : "#fff", color: adminTab === tab ? "#FAF7F1" : "#1E3F2F", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 13, fontWeight: 600 }}>
                     {tab === "tips" ? `All Tips (${adminTips.length})` : `Reports (${adminReports.length})`}
                   </button>
                 ))}
-                <button onClick={loadAdminData} style={{ marginLeft: "auto", padding: "10px 18px", borderRadius: 0, cursor: "pointer", background: "#fff", color: "#1E3F2F", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600 }}>
-                  ↻ Refresh
-                </button>
+                <button onClick={loadAdminData} style={{ marginLeft: "auto", padding: "10px 18px", borderRadius: 0, cursor: "pointer", background: "#fff", color: "#1E3F2F", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600 }}>↻ Refresh</button>
               </div>
-
               {adminLoading ? (
                 <div style={{ textAlign: "center", padding: "60px 0", color: "var(--muted)", fontFamily: "var(--font-b)", fontSize: 14 }}>Loading...</div>
               ) : adminTab === "tips" ? (
@@ -1583,15 +1055,11 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                         <div style={{ flex: 1 }}>
                           <span style={{ fontSize: 11, fontWeight: 600, background: "#D4ECD8", color: "#1E3F2F", padding: "3px 10px", fontFamily: "var(--font-b)", marginBottom: 8, display: "inline-block" }}>{tip.category || "General"}</span>
                           <p style={{ fontSize: 14, lineHeight: 1.65, color: "var(--ink)", marginBottom: 6 }}>{tip.tip_text}</p>
-                          <p style={{ fontSize: 11, color: "var(--muted)", fontFamily: "var(--font-b)" }}>
-                            {tip.author_name || "Anonymous"} · ♥ {tip.vote_count || 0} · {tip.created_at ? new Date(tip.created_at).toLocaleDateString() : ""}
-                          </p>
+                          <p style={{ fontSize: 11, color: "var(--muted)", fontFamily: "var(--font-b)" }}>{tip.author_name || "Anonymous"} · ♥ {tip.vote_count || 0} · {tip.created_at ? new Date(tip.created_at).toLocaleDateString() : ""}</p>
                         </div>
                         <button onClick={() => adminDeleteTip(tip.id)} style={{ flexShrink: 0, padding: "8px 14px", background: "#fff", color: "#c0392b", border: "1.5px solid #c0392b", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, cursor: "pointer", borderRadius: 0, transition: "all 0.15s" }}
                           onMouseEnter={e => { e.currentTarget.style.background = "#c0392b"; e.currentTarget.style.color = "#fff"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#c0392b"; }}>
-                          Delete
-                        </button>
+                          onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#c0392b"; }}>Delete</button>
                       </div>
                     </div>
                   ))}
@@ -1604,15 +1072,11 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
                         <div style={{ flex: 1 }}>
                           <span style={{ fontSize: 11, fontWeight: 600, background: "#fdecea", color: "#c0392b", padding: "3px 10px", fontFamily: "var(--font-b)", marginBottom: 8, display: "inline-block" }}>{report.reason}</span>
                           <p style={{ fontSize: 14, lineHeight: 1.65, color: "var(--ink)", marginBottom: 6 }}>"{report.tip_text}"</p>
-                          <p style={{ fontSize: 11, color: "var(--muted)", fontFamily: "var(--font-b)" }}>
-                            Reported {report.reported_at ? new Date(report.reported_at).toLocaleDateString() : ""}
-                          </p>
+                          <p style={{ fontSize: 11, color: "var(--muted)", fontFamily: "var(--font-b)" }}>Reported {report.reported_at ? new Date(report.reported_at).toLocaleDateString() : ""}</p>
                         </div>
                         <button onClick={() => adminDeleteReport(report.id)} style={{ flexShrink: 0, padding: "8px 14px", background: "#fff", color: "#c0392b", border: "1.5px solid #c0392b", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, cursor: "pointer", borderRadius: 0, transition: "all 0.15s" }}
                           onMouseEnter={e => { e.currentTarget.style.background = "#c0392b"; e.currentTarget.style.color = "#fff"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#c0392b"; }}>
-                          Dismiss
-                        </button>
+                          onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#c0392b"; }}>Dismiss</button>
                       </div>
                     </div>
                   ))}
@@ -1625,16 +1089,9 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
 
       {/* Footer */}
       {!showSplash && (
-        <footer style={{
-          width: "100%", maxWidth: 560, padding: "24px 32px 32px",
-          textAlign: "center", position: "relative", zIndex: 1,
-        }}>
-          <p style={{ fontFamily: "var(--font-b)", fontSize: 11, color: "var(--muted)", lineHeight: 1.6, marginBottom: 6 }}>
-            FinTips is for informational purposes only and is not professional financial advice.
-          </p>
-          <p style={{ fontFamily: "var(--font-b)", fontSize: 11, color: "var(--muted)" }}>
-            © {new Date().getFullYear()} FinTips. All rights reserved.
-          </p>
+        <footer style={{ width: "100%", maxWidth: 560, padding: "24px 32px 32px", textAlign: "center", position: "relative", zIndex: 1 }}>
+          <p style={{ fontFamily: "var(--font-b)", fontSize: 11, color: "var(--muted)", lineHeight: 1.6, marginBottom: 6 }}>FinTips is for informational purposes only and is not professional financial advice.</p>
+          <p style={{ fontFamily: "var(--font-b)", fontSize: 11, color: "var(--muted)" }}>© {new Date().getFullYear()} FinTips. All rights reserved.</p>
         </footer>
       )}
     </div>
