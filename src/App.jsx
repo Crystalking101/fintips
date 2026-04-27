@@ -969,6 +969,7 @@ Write exactly 3 tips. Each tip is 1-2 short sentences max. Be direct and specifi
         },
         signal: controller.signal,
         body: JSON.stringify({
+          // ✅ DO NOT CHANGE — llama3-8b-8192 is deprecated, this is the correct model
           model: "llama-3.1-8b-instant" ,
           messages: [{ role: "user", content: prompt }],
           max_tokens: 500,
