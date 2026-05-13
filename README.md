@@ -1,16 +1,24 @@
-# React + Vite
+# FinTips
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A free, anonymous community-driven financial advice web app with AI-powered personalization.
 
-Currently, two official plugins are available:
+## Live Product
+[fintips.vercel.app](https://fintips.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## The Problem
+Most financial advice is either too generic, locked behind a paywall, or comes from brands trying to sell you something. FinTips gives real people a place to share and discover honest, relatable financial tips — with no sign up, no tracking and no cost.
 
-## React Compiler
+## Stack
+React + Vite, Supabase, OpenRouter AI, Vercel, Google Analytics, Google Search Console
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
+- AI-generated financial tips based on a 3-question quiz
+- Community tips submitted and liked by real users
+- Financial facts library with 100+ facts
+- Shareable tip cards for LinkedIn, Instagram and more
+- Admin moderation panel
+- Fully anonymous — no account required
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Built by
+Crystal King — Product Manager & Builder
+[Portfolio](https://crystalking.com)
