@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import FinCheck from "./components/FinCheck.jsx";
 
 // ─── OPENROUTER CONFIG ────────────────────────────────────────────────────────
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
@@ -335,7 +336,7 @@ const CSS = `
 `;
 
 // ─── HOME SCREEN ─────────────────────────────────────────────────────────────
-function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
+function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice, onPlayFinCheck }) {
   const particles = Array.from({ length: 18 }, (_, i) => ({
     id: i, symbol: MONEY_SYMBOLS[i % MONEY_SYMBOLS.length],
     left: `${(i * 5.5 + Math.sin(i) * 8) % 95}%`,
@@ -357,13 +358,19 @@ function HomeScreen({ onGetAdvice, onWriteAdvice, onViewAdvice }) {
         <p className="splash-sub" style={{ marginTop: 20 }}>Personalized · Anonymous · Community-powered</p>
       </div>
       <div style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 10, position: "relative", zIndex: 2 }}>
-        {[{ label: "Get Advice", fn: onGetAdvice, primary: true }, { label: "Write Advice", fn: onWriteAdvice, primary: false }, { label: "View all Advice", fn: onViewAdvice, primary: false }].map(({ label, fn, primary }) => (
-          <button key={label} onClick={fn} style={{ width: "100%", padding: "14px 8px", borderRadius: 0, cursor: "pointer", background: primary ? "#1E3F2F" : "#fff", color: primary ? "#FAF7F1" : "#1E3F2F", textAlign: "center", border: "1.5px solid #1E3F2F", transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, minHeight: 48 }}
+        {[{ label: "Get Advice", fn: onGetAdvice }, { label: "Write Advice", fn: onWriteAdvice }, { label: "View all Advice", fn: onViewAdvice }].map(({ label, fn }) => (
+          <button key={label} onClick={fn} style={{ width: "100%", padding: "14px 8px", borderRadius: 0, cursor: "pointer", background: "#fff", color: "#1E3F2F", textAlign: "center", border: "1.5px solid #1E3F2F", transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, minHeight: 48 }}
             onMouseEnter={e => { e.currentTarget.style.background = "#1E3F2F"; e.currentTarget.style.color = "#FAF7F1"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = primary ? "#1E3F2F" : "#fff"; e.currentTarget.style.color = primary ? "#FAF7F1" : "#1E3F2F"; }}>
+            onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#1E3F2F"; }}>
             {label}
           </button>
         ))}
+        <button onClick={onPlayFinCheck} style={{ width: "100%", padding: "14px 8px", borderRadius: 0, cursor: "pointer", background: "#1E3F2F", color: "#FAF7F1", textAlign: "center", border: "1.5px solid #1E3F2F", transition: "opacity 0.2s", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, minHeight: 48, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>
+          Play FinCheck
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FAF7F1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: -2 }}><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
       </div>
     </div>
   );
@@ -576,6 +583,18 @@ export default function FinTips() {
   const [loadStep, setLoadStep] = useState(0);
   const [dragStart, setDragStart] = useState(null);
 
+  const navLinkStyle = {
+    fontFamily: "'Outfit', sans-serif",
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#1E3F2F",
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    padding: "6px 2px",
+    transition: "color 0.2s, background 0.2s",
+  };
+
   useEffect(() => {
     const s = document.createElement("style"); s.textContent = CSS; document.head.appendChild(s);
     return () => document.head.removeChild(s);
@@ -589,6 +608,10 @@ export default function FinTips() {
   }, [screen]);
 
   useEffect(() => { if (screen === "community") loadCommunityTips(); }, [screen]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [screen]);
 
   function go(to, direction = "right") { setDir(direction); setScreenKey(k => k + 1); setScreen(to); }
   function goHome() { setShowSplash(true); setForm({ goals: [] }); setAdvice(""); setQuizAnswers({ goal: "", startingPoint: "", challenge: "" }); }
@@ -720,10 +743,12 @@ Write 3 tips. Each tip is ONE sentence max. Real numbers only. No fluff. Plain p
           onGetAdvice={() => { setShowSplash(false); setQuizAnswers({ goal: "", startingPoint: "", challenge: "" }); go("quiz3"); }}
           onWriteAdvice={() => { setShowSplash(false); go("writeadvice"); }}
           onViewAdvice={() => { setShowSplash(false); go("community"); }}
+          onPlayFinCheck={() => { setShowSplash(false); go("fincheck"); }}
         />
       )}
 
       <div className="orb orb-1" /><div className="orb orb-2" /><div className="orb orb-3" />
+
 
       <main className="main" style={{ marginLeft: "auto", marginRight: "auto" }}>
         <div key={screenKey} className={dir === "right" ? "enter-right" : "enter-left"}>
@@ -877,6 +902,39 @@ Write 3 tips. Each tip is ONE sentence max. Real numbers only. No fluff. Plain p
                   </button>
                 ))}
               </div>
+              <button
+                type="button"
+                onClick={() => go("fincheck")}
+                style={{
+                  width: "100%",
+                  marginTop: 10,
+                  padding: "12px 8px",
+                  borderRadius: 0,
+                  cursor: "pointer",
+                  background: "#1E3F2F",
+                  color: "#FAF7F1",
+                  textAlign: "center",
+                  border: "1.5px solid #1E3F2F",
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  transition: "all 0.2s",
+                  minHeight: 48,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = "0.9"; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>
+                Play FinCheck →
+              </button>
+            </div>
+          )}
+
+          {/* FINCHECK */}
+          {screen === "fincheck" && (
+            <div className="sg">
+              <FinCheck onHome={() => { goHome(); }} />
             </div>
           )}
 
