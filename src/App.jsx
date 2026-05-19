@@ -766,6 +766,7 @@ Write 3 tips. Each tip is ONE sentence max. Real numbers only. No fluff. Plain p
                   {form.goals.map(g => { const goal = GOALS.find(x => x.id === g); const Icon = GOAL_ICONS[g]; return goal ? <span key={g} className="tag" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{Icon && <Icon />} {goal.label}</span> : null; })}
                 </div>
                 <ShareSheet text={advice} label="advice" isAdvice={true} />
+                <p style={{ fontFamily: "var(--font-b)", fontSize: 12, fontStyle: "italic", color: "var(--muted)", lineHeight: 1.6, marginTop: 16 }}>This is AI-generated content for educational purposes only. Not professional financial advice.</p>
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 40 }}>
                 <button onClick={() => go("tips")} style={{ flex: 1, padding: "12px 8px", borderRadius: 0, cursor: "pointer", background: "#1E3F2F", color: "#FAF7F1", textAlign: "center", border: "1.5px solid #1E3F2F", fontFamily: "'Outfit', sans-serif", fontSize: 12, fontWeight: 600, transition: "all 0.2s" }}
@@ -1148,7 +1149,7 @@ Write 3 tips. Each tip is ONE sentence max. Real numbers only. No fluff. Plain p
       {/* Footer */}
       {!showSplash && (
         <footer style={{ width: "100%", maxWidth: 560, padding: "24px 32px 32px", textAlign: "center", position: "relative", zIndex: 1 }}>
-          <p style={{ fontFamily: "var(--font-b)", fontSize: 11, color: "var(--muted)", lineHeight: 1.6, marginBottom: 6 }}>FinTips is for informational purposes only and is not professional financial advice.</p>
+          <p style={{ fontFamily: "var(--font-b)", fontSize: 11, color: "var(--muted)", lineHeight: 1.7, marginBottom: 6 }}>FinTips is for educational purposes only and does not constitute professional financial advice. Always consult a licensed financial advisor before making financial decisions.</p>
           <p style={{ fontFamily: "var(--font-b)", fontSize: 11, color: "var(--muted)" }}>© {new Date().getFullYear()} FinTips. All rights reserved.</p>
         </footer>
       )}

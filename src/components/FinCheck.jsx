@@ -573,7 +573,7 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
         </div>
 
         {!revealed && showFinePointerButtons ? (
-          <div style={{ maxWidth: 440, margin: "20px auto 0", padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ maxWidth: 520, margin: "20px auto 0", padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }}>
             <button
               type="button"
               onClick={() => handleSwipeDecision(true)}
@@ -610,6 +610,27 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
             </button>
           </div>
         ) : null}
+
+        <div style={{ maxWidth: 520, margin: "36px auto 0", padding: "0 16px", textAlign: "center" }}>
+          <button
+            type="button"
+            onClick={onHome}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: FONT_BODY,
+              fontSize: 13,
+              fontWeight: 500,
+              color: "#6B6558",
+              padding: "10px 0",
+              minHeight: 44,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = FOREST; }}
+            onMouseLeave={e => { e.currentTarget.style.color = "#6B6558"; }}>
+            ← Back to Home
+          </button>
+        </div>
       </div>
     </section>
   );
