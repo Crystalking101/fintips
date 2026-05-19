@@ -310,7 +310,7 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
   const stampRightPx = stampStrength > 0 && dragX > 12 ? stampStrength : isFlyingOut && dragX > 0 ? 1 : 0;
 
   const verdictLabel = card?.isLeftSwipe ? "Fraud/Myth" : "Legit";
-  const verdictColor = card?.isLeftSwipe ? FRAUD_RED : FOREST;
+  const verdictColor = "rgba(250,247,241,0.94)";
 
   let badgeRevealBg = "rgba(201,168,76,0.18)";
   let badgeRevealColor = "#C9A84C";
@@ -517,30 +517,15 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
               </>
             ) : null}
             <div style={{ position: "relative", zIndex: 3 }}>
-              <span
-                style={{
-                  display: "inline-block",
-                  fontFamily: FONT_BODY,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  padding: "6px 12px",
-                  borderRadius: 0,
-                  marginBottom: 18,
-                  background: revealed ? badgeRevealBg : "rgba(201,168,76,0.18)",
-                  color: revealed ? badgeRevealColor : "#C9A84C",
-                  letterSpacing: 0.2,
-                }}>
-                {card.cardType}
-              </span>
               <p style={{ fontFamily: FONT_SERIF, fontSize: 30, fontWeight: 400, color: "rgba(250,247,241,0.94)", lineHeight: 1.5, marginBottom: 0 }}>{card.statement}</p>
 
               {revealed ? (
                 <div style={{ marginTop: 28 }}>
-                  <p style={{ fontFamily: FONT_BODY, fontSize: 18, fontWeight: 700, color: card?.isLeftSwipe ? "#f87171" : "#C9A84C", marginBottom: 12 }}>{verdictLabel}</p>
-                  <p style={{ fontFamily: FONT_BODY, fontSize: 16, fontWeight: 700, color: correctForCard ? "#C9A84C" : "#f87171", marginBottom: 16 }}>
-                    {correctForCard ? "Correct! ✓" : "Not quite —"}
+                  <p style={{ fontFamily: FONT_BODY, fontSize: 22, fontWeight: 800, color: "#D4AF37", marginBottom: 10, letterSpacing: -0.2 }}>{verdictLabel}</p>
+                  <p style={{ fontFamily: FONT_BODY, fontSize: 22, fontWeight: 800, color: "#D4AF37", marginBottom: 16, letterSpacing: -0.2 }}>
+                    {correctForCard ? "Correct! ✓" : "Not quite"}
                   </p>
-                  <p style={{ fontFamily: FONT_BODY, fontSize: 15, color: "rgba(250,247,241,0.82)", lineHeight: 1.65 }}>{card.explanation}</p>
+                  <p style={{ fontFamily: FONT_BODY, fontSize: 15, color: "#FAF7F1", lineHeight: 1.65 }}>{card.explanation}</p>
 
                   {cardIndex < FINCHECK_CARDS.length - 1 ? (
                     <button
@@ -550,9 +535,9 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
                         marginTop: 28,
                         width: "100%",
                         height: 48,
-                        background: "rgba(255,255,255,0.12)",
-                        color: CREAM,
-                        border: "1px solid rgba(255,255,255,0.25)",
+                        background: "transparent",
+                        color: "#FAF7F1",
+                        border: "1px solid #FAF7F1",
                         borderRadius: 0,
                         fontFamily: FONT_BODY,
                         fontSize: 15,
@@ -569,9 +554,9 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
                         marginTop: 28,
                         width: "100%",
                         height: 48,
-                        background: "rgba(255,255,255,0.12)",
-                        color: CREAM,
-                        border: "1px solid rgba(255,255,255,0.25)",
+                        background: "transparent",
+                        color: "#FAF7F1",
+                        border: "1px solid #FAF7F1",
                         borderRadius: 0,
                         fontFamily: FONT_BODY,
                         fontSize: 15,
