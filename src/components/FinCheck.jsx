@@ -350,11 +350,11 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
 
         {/* progress bar + counter + level */}
         <div style={{ maxWidth: 520, margin: "0 auto 6px", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: "#6B6558" }}>{cardIndex + 1} / 10</span>
-          <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: GOLD, fontWeight: 600 }}>{levelDisplay}</span>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: FOREST, fontWeight: 600 }}>{cardIndex + 1} / 10</span>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: FOREST, fontWeight: 600 }}>{levelDisplay}</span>
         </div>
-        <div style={{ height: 2, background: `rgba(212,175,55,0.2)`, maxWidth: 520, margin: "0 auto 24px", padding: "0 16px", overflow: "hidden" }}>
-          <div style={{ height: "100%", width: progressFill, background: GOLD, transition: "width 0.35s ease" }} />
+        <div style={{ height: 2, background: `rgba(30,63,47,0.15)`, maxWidth: 520, margin: "0 auto 24px", padding: "0 16px", overflow: "hidden" }}>
+          <div style={{ height: "100%", width: progressFill, background: FOREST, transition: "width 0.35s ease" }} />
         </div>
 
         {/* card */}
