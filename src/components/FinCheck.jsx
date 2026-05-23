@@ -1,19 +1,18 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
-const CREAM   = "#FAF7F1";
-const FOREST  = "#1E3F2F";
-const GOLD    = "#D4AF37";
+const CREAM      = "#FAF7F1";
+const FOREST     = "#1E3F2F";
+const GOLD       = "#D4AF37";
 const FONT_SERIF = "'Instrument Serif', serif";
 const FONT_BODY  = "'Plus Jakarta Sans', sans-serif";
 
 const SWIPE_COMMIT_PX = 100;
+const COIN_COLS       = 20;
 
 function getCurrentWeekNumber() {
   const now   = new Date();
   const start = new Date(now.getFullYear(), 0, 1);
-  const diff  = now - start;
-  const oneWeek = 1000 * 60 * 60 * 24 * 7;
-  return Math.floor(diff / oneWeek) + 1;
+  return Math.floor((now - start) / (1000 * 60 * 60 * 24 * 7)) + 1;
 }
 
 function levelFromXp(totalXp) {
@@ -24,29 +23,29 @@ function levelFromXp(totalXp) {
 }
 
 const FINCHECK_CARDS = [
-  { id: 1,  statement: "Carrying a credit card balance each month helps build your credit score.", cardType: "Financial Myth", isLeftSwipe: true,  explanation: "You never need to carry a balance to build credit. Paying in full every month avoids interest entirely while still building an excellent credit history." },
-  { id: 2,  statement: "URGENT: Your Amazon account has been compromised. Click here to verify your identity and claim your $500 refund.", cardType: "Fraud Alert", isLeftSwipe: true,  explanation: "This is a classic phishing scam. Legitimate companies never ask you to click unsolicited links to verify your account or claim refunds." },
-  { id: 3,  statement: "You need at least $1,000 saved before you can start investing.", cardType: "Financial Myth", isLeftSwipe: true,  explanation: "You can start investing with as little as $1 through fractional shares on platforms like Fidelity or Robinhood. Starting early matters far more than starting big." },
-  { id: 4,  statement: "A bank will never ask for your full password or PIN over the phone or via email.", cardType: "Money Fact", isLeftSwipe: false, explanation: "This is true. If anyone calls or emails claiming to be your bank and asks for your full password or PIN, hang up and call your bank directly using the number on their official website." },
-  { id: 5,  statement: "Congratulations! You've been selected for a free government stimulus grant. Send $50 to cover processing fees to receive $5,000.", cardType: "Fraud Alert", isLeftSwipe: true,  explanation: "This is a government grant scam. Real government programs never require upfront fees. If you pay, the money disappears and you receive nothing." },
-  { id: 6,  statement: "Renting a home is always throwing money away compared to buying.", cardType: "Financial Myth", isLeftSwipe: true,  explanation: "Renting can be the smarter financial move, especially if you might move within 5 years. Renting avoids maintenance costs, property taxes, and housing market risk." },
-  { id: 7,  statement: "Paying yourself first — automating savings before spending — is one of the most effective ways to build wealth.", cardType: "Money Fact", isLeftSwipe: false, explanation: "Correct! Automating a savings transfer the moment your paycheck arrives removes the temptation to skip it. People who pay themselves first consistently save more." },
-  { id: 8,  statement: "Hi, this is the IRS. You owe back taxes and will be arrested within 24 hours unless you pay immediately via gift cards.", cardType: "Fraud Alert", isLeftSwipe: true,  explanation: "The IRS never calls to demand immediate payment, threatens arrest, or asks for gift cards. This is one of the most common scams in the US. Hang up immediately." },
-  { id: 9,  statement: "You need a perfect 850 credit score to qualify for the best mortgage rates.", cardType: "Financial Myth", isLeftSwipe: true,  explanation: "Most lenders offer their best rates to anyone above 760. Chasing a perfect 850 beyond that has virtually no financial benefit — focus on on-time payments and low utilization." },
-  { id: 10, statement: "If an investment opportunity promises guaranteed returns of 30% or more with no risk, it is almost certainly a scam.", cardType: "Money Fact", isLeftSwipe: false, explanation: "Correct. No legitimate investment can guarantee high returns with zero risk. This is the hallmark of a Ponzi scheme or investment fraud. If it sounds too good to be true, it is." },
+  { id: 1,  statement: "Carrying a credit card balance each month helps build your credit score.", isLeftSwipe: true,  explanation: "You never need to carry a balance to build credit. Paying in full every month avoids interest entirely while still building an excellent credit history." },
+  { id: 2,  statement: "URGENT: Your Amazon account has been compromised. Click here to verify your identity and claim your $500 refund.", isLeftSwipe: true,  explanation: "This is a classic phishing scam. Legitimate companies never ask you to click unsolicited links to verify your account or claim refunds." },
+  { id: 3,  statement: "You need at least $1,000 saved before you can start investing.", isLeftSwipe: true,  explanation: "You can start investing with as little as $1 through fractional shares on platforms like Fidelity or Robinhood. Starting early matters far more than starting big." },
+  { id: 4,  statement: "A bank will never ask for your full password or PIN over the phone or via email.", isLeftSwipe: false, explanation: "This is true. If anyone calls or emails claiming to be your bank and asks for your full password or PIN, hang up and call your bank directly using the number on their official website." },
+  { id: 5,  statement: "Congratulations! You've been selected for a free government stimulus grant. Send $50 to cover processing fees to receive $5,000.", isLeftSwipe: true,  explanation: "This is a government grant scam. Real government programs never require upfront fees. If you pay, the money disappears and you receive nothing." },
+  { id: 6,  statement: "Renting a home is always throwing money away compared to buying.", isLeftSwipe: true,  explanation: "Renting can be the smarter financial move, especially if you might move within 5 years. Renting avoids maintenance costs, property taxes, and housing market risk." },
+  { id: 7,  statement: "Automating your savings before you spend is one of the most effective ways to build wealth.", isLeftSwipe: false, explanation: "Correct! Automating a savings transfer the moment your paycheck arrives removes the temptation to skip it. People who pay themselves first consistently save more." },
+  { id: 8,  statement: "Hi, this is the IRS. You owe back taxes and will be arrested within 24 hours unless you pay immediately via gift cards.", isLeftSwipe: true,  explanation: "The IRS never calls to demand immediate payment, threatens arrest, or asks for gift cards. This is one of the most common scams in the US. Hang up immediately." },
+  { id: 9,  statement: "You need a perfect 850 credit score to qualify for the best mortgage rates.", isLeftSwipe: true,  explanation: "Most lenders offer their best rates to anyone above 760. Chasing a perfect 850 beyond that has virtually no financial benefit — focus on on-time payments and low utilization." },
+  { id: 10, statement: "If an investment opportunity promises guaranteed returns of 30% or more with no risk, it is almost certainly a scam.", isLeftSwipe: false, explanation: "Correct. No legitimate investment can guarantee high returns with zero risk. This is the hallmark of a Ponzi scheme or investment fraud. If it sounds too good to be true, it is." },
 ];
 
-const LS_XP            = "fincheck_xp";
-const LS_LEVEL         = "fincheck_level";
-const LS_STREAK        = "fincheck_streak";
-const LS_LAST_WEEK     = "fincheck_last_week";
+const LS_XP             = "fincheck_xp";
+const LS_LEVEL          = "fincheck_level";
+const LS_STREAK         = "fincheck_streak";
+const LS_LAST_WEEK      = "fincheck_last_week";
 const LS_COMPLETED_WEEK = "fincheck_completed_week";
 
 function readFinCheckBootstrap() {
   if (typeof window === "undefined") return "playing";
   try {
-    const w   = getCurrentWeekNumber();
-    const raw = localStorage.getItem(LS_COMPLETED_WEEK);
+    const w         = getCurrentWeekNumber();
+    const raw       = localStorage.getItem(LS_COMPLETED_WEEK);
     const completed = raw == null || raw === "" ? NaN : Number.parseInt(raw, 10);
     if (!Number.isNaN(completed) && completed === w) return "blocked";
   } catch { /* */ }
@@ -58,61 +57,117 @@ function flyTranslate() {
   return Math.max(window.innerWidth, 560) * 1.35;
 }
 
+/** Inject a unique @keyframes rule for one coin and return the animation name. */
+function injectCoinKeyframe(id, endBottomPx) {
+  const name = `fc_coin_${id}`;
+  const rule = `
+    @keyframes ${name} {
+      0%   { top: -60px;                         opacity: 0; transform: rotate(0deg);   }
+      8%   { opacity: 1; }
+      100% { top: calc(100vh - ${endBottomPx}px); opacity: 1; transform: rotate(540deg); }
+    }`;
+  const sheet = document.createElement("style");
+  sheet.setAttribute("data-fc-coin", id);
+  sheet.textContent = rule;
+  document.head.appendChild(sheet);
+  return name;
+}
+
 export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
   const initialPhase = useMemo(() => readFinCheckBootstrap(), []);
-  const [gamePhase, setGamePhase]       = useState(initialPhase);
-  const [cardIndex, setCardIndex]       = useState(0);
-  const [revealed, setRevealed]         = useState(false);
+  const [gamePhase,      setGamePhase]      = useState(initialPhase);
+  const [cardIndex,      setCardIndex]      = useState(0);
+  const [revealed,       setRevealed]       = useState(false);
   const [userSwipedLeft, setUserSwipedLeft] = useState(null);
-  const [dragX, setDragX]               = useState(0);
-  const [isDragging, setIsDragging]     = useState(false);
-  const [isFlyingOut, setIsFlyingOut]   = useState(false);
+  const [dragX,          setDragX]          = useState(0);
+  const [isDragging,     setIsDragging]     = useState(false);
+  const [isFlyingOut,    setIsFlyingOut]    = useState(false);
 
-  const pointerStartX      = useRef(0);
-  const pointerStartY      = useRef(0);
+  const pointerStartX       = useRef(0);
+  const pointerStartY       = useRef(0);
   const pendingSwipeLeftRef = useRef(null);
   const flyFallbackTimerRef = useRef(null);
-  const dragPointerIdRef   = useRef(null);
-  const draggingRef        = useRef(false);
-  const flyCommitDoneRef   = useRef(false);
-  const flyRotationDegRef  = useRef(0);
-  const scoreRef           = useRef(0);
+  const dragPointerIdRef    = useRef(null);
+  const draggingRef         = useRef(false);
+  const flyCommitDoneRef    = useRef(false);
+  const flyRotationDegRef   = useRef(0);
+  const scoreRef            = useRef(0);
 
-  const [finalScore,       setFinalScore]       = useState(0);
+  const [finalScore,        setFinalScore]        = useState(0);
   const [xpEarnedThisRound, setXpEarnedThisRound] = useState(0);
-  const [totalXpDisplay,   setTotalXpDisplay]   = useState(0);
-  const [levelDisplay,     setLevelDisplay]     = useState(() => {
+  const [totalXpDisplay,    setTotalXpDisplay]    = useState(0);
+  const [levelDisplay,      setLevelDisplay]      = useState(() => {
     try {
       const xp = parseInt(localStorage.getItem(LS_XP) ?? "0", 10);
       return levelFromXp(Number.isNaN(xp) ? 0 : xp);
     } catch { return "Financial Newbie"; }
   });
-  const [streakDisplay,    setStreakDisplay]     = useState(1);
-  const [shareCopied,      setShareCopied]      = useState(false);
+  const [streakDisplay, setStreakDisplay] = useState(1);
+  const [shareCopied,   setShareCopied]   = useState(false);
 
-  const [showFinePointerButtons, setShowFinePointerButtons] = useState(true);
+  // ── coins ──────────────────────────────────────────────────────────────────
+  const [coins,    setCoins]  = useState([]);
+  const coinIdRef  = useRef(0);
+  const colHeights = useRef(new Array(COIN_COLS).fill(0));
 
+  // Clean up injected keyframe style tags on unmount
   useEffect(() => {
-    try {
-      const mq     = window.matchMedia("(hover: hover) and (pointer: fine)");
-      const update = () => setShowFinePointerButtons(mq.matches);
-      update();
-      mq.addEventListener?.("change", update);
-      return () => mq.removeEventListener?.("change", update);
-    } catch { setShowFinePointerButtons(true); }
+    return () => {
+      document.querySelectorAll("[data-fc-coin]").forEach(el => el.remove());
+    };
   }, []);
+
+  function spawnCoins(count) {
+    const symbols   = ["🪙", "$"];
+    const newCoins  = Array.from({ length: count }, () => {
+      const id      = ++coinIdRef.current;
+      const symbol  = symbols[Math.floor(Math.random() * symbols.length)];
+      const left    = 2 + Math.random() * 94;                          // 2–96 vw %
+      const colIdx  = Math.min(Math.floor(left / (100 / COIN_COLS)), COIN_COLS - 1);
+      const stackH  = colHeights.current[colIdx];
+      colHeights.current[colIdx]++;
+      const endBottomPx = 20 + stackH * 28;                           // pile grows up
+      const duration    = 1.2 + Math.random() * 1.2;                  // 1.2 – 2.4 s
+      const delay       = Math.random() * 0.8;
+      const animName    = injectCoinKeyframe(id, endBottomPx);
+      return { id, symbol, left, endBottomPx, duration, delay, animName };
+    });
+    setCoins(prev => [...prev, ...newCoins]);
+  }
 
   useEffect(() => () => {
     if (flyFallbackTimerRef.current) clearTimeout(flyFallbackTimerRef.current);
   }, []);
 
+  // Continuous coin rain on results screen
+  const coinIntervalRef = useRef(null);
+  useEffect(() => {
+    if (gamePhase === "results") {
+      coinIntervalRef.current = setInterval(() => {
+        colHeights.current = new Array(COIN_COLS).fill(0);
+        spawnCoins(20);
+      }, 800);
+    } else {
+      if (coinIntervalRef.current) {
+        clearInterval(coinIntervalRef.current);
+        coinIntervalRef.current = null;
+      }
+    }
+    return () => {
+      if (coinIntervalRef.current) {
+        clearInterval(coinIntervalRef.current);
+        coinIntervalRef.current = null;
+      }
+    };
+  }, [gamePhase]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const card = FINCHECK_CARDS[cardIndex];
 
   const applyRoundComplete = useCallback((correctCount) => {
-    const currentWeek    = getCurrentWeekNumber();
+    const currentWeek     = getCurrentWeekNumber();
     const prevLastWeekRaw = localStorage.getItem(LS_LAST_WEEK);
-    const prevLastWeek   = prevLastWeekRaw == null ? null : parseInt(prevLastWeekRaw, 10);
-    const prevStreak     = parseInt(localStorage.getItem(LS_STREAK) ?? "1", 10);
+    const prevLastWeek    = prevLastWeekRaw == null ? null : parseInt(prevLastWeekRaw, 10);
+    const prevStreak      = parseInt(localStorage.getItem(LS_STREAK) ?? "1", 10);
     const hadCompletedBefore = localStorage.getItem(LS_COMPLETED_WEEK) !== null;
 
     let newStreak = 1;
@@ -126,8 +181,8 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
     if (correctCount >= 10)  earned += 5;
     if (!hadCompletedBefore) earned += 5;
 
-    const prevXp   = parseInt(localStorage.getItem(LS_XP) ?? "0", 10);
-    const newTotal = (Number.isNaN(prevXp) ? 0 : prevXp) + earned;
+    const prevXp       = parseInt(localStorage.getItem(LS_XP) ?? "0", 10);
+    const newTotal     = (Number.isNaN(prevXp) ? 0 : prevXp) + earned;
     const newLevelName = levelFromXp(newTotal);
 
     localStorage.setItem(LS_XP,             String(newTotal));
@@ -141,8 +196,10 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
     setTotalXpDisplay(newTotal);
     setLevelDisplay(newLevelName);
     setStreakDisplay(newStreak);
+    colHeights.current = new Array(COIN_COLS).fill(0);
+    spawnCoins(20);
     setGamePhase("results");
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSwipeDecision = useCallback((swipedLeft) => {
     if (!card || revealed || gamePhase !== "playing") return;
@@ -152,7 +209,8 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
     setDragX(0);
     setIsFlyingOut(false);
     scoreRef.current += correct ? 1 : 0;
-  }, [card, revealed, gamePhase]);
+    if (correct) spawnCoins(10);
+  }, [card, revealed, gamePhase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const completeFlyCommit = useCallback(() => {
     if (flyCommitDoneRef.current) return;
@@ -170,9 +228,9 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
   function onPointerDown(e) {
     if (revealed || gamePhase !== "playing" || isFlyingOut) return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    dragPointerIdRef.current   = e.pointerId;
-    pointerStartX.current      = e.clientX;
-    pointerStartY.current      = e.clientY;
+    dragPointerIdRef.current = e.pointerId;
+    pointerStartX.current    = e.clientX;
+    pointerStartY.current    = e.clientY;
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* */ }
     draggingRef.current = true;
     setIsDragging(true);
@@ -189,13 +247,13 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
 
   function flyOffCommit(swipedLeft) {
     if (flyFallbackTimerRef.current) { clearTimeout(flyFallbackTimerRef.current); flyFallbackTimerRef.current = null; }
-    flyRotationDegRef.current  = swipedLeft ? -18 : 18;
+    flyRotationDegRef.current   = swipedLeft ? -18 : 18;
     const dist      = flyTranslate();
     const deltaSign = swipedLeft ? -1 : 1;
     pendingSwipeLeftRef.current = swipedLeft;
-    draggingRef.current = false;
+    draggingRef.current         = false;
     setIsDragging(false);
-    dragPointerIdRef.current = null;
+    dragPointerIdRef.current    = null;
     setIsFlyingOut(true);
     requestAnimationFrame(() => setDragX(deltaSign * dist));
     flyFallbackTimerRef.current = setTimeout(() => {
@@ -210,7 +268,7 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
     const dy = e.clientY - pointerStartY.current;
     if (isFlyingOut) return;
     try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* */ }
-    draggingRef.current = false;
+    draggingRef.current      = false;
     setIsDragging(false);
     dragPointerIdRef.current = null;
     if (Math.abs(dx) < SWIPE_COMMIT_PX || Math.abs(dx) <= Math.abs(dy)) {
@@ -223,7 +281,7 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
   function onPointerCancel(e) {
     if (dragPointerIdRef.current !== e.pointerId) return;
     try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* */ }
-    draggingRef.current = false;
+    draggingRef.current      = false;
     dragPointerIdRef.current = null;
     setIsDragging(false);
     if (!isFlyingOut && !revealed) requestAnimationFrame(() => setDragX(0));
@@ -247,6 +305,7 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
       pendingSwipeLeftRef.current = null;
       draggingRef.current         = false;
       flyCommitDoneRef.current    = false;
+      colHeights.current          = new Array(COIN_COLS).fill(0);
     }
   }
 
@@ -276,64 +335,92 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
   const stampLeftPx   = stampStrength > 0 && dragX < -12 ? stampStrength : isFlyingOut && dragX < 0 ? 1 : 0;
   const stampRightPx  = stampStrength > 0 && dragX > 12  ? stampStrength : isFlyingOut && dragX > 0 ? 1 : 0;
 
-  const verdictLabel = card?.isLeftSwipe ? "Fraud" : "Legit";
+  const verdictLabel   = card?.isLeftSwipe ? "Fraud" : "Legit";
   const correctForCard = revealed && card && userSwipedLeft !== null ? userSwipedLeft === card.isLeftSwipe : false;
 
   const cardTransform = revealed ? undefined : `translateX(${dragX}px) translateZ(0) rotate(${rotateDeg}deg)`;
   let cardTransition  = "transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)";
-  if (isFlyingOut)  cardTransition = "transform 0.38s cubic-bezier(0.4, 0, 0.2, 1)";
-  if (isDragging)   cardTransition = "none";
+  if (isFlyingOut) cardTransition = "transform 0.38s cubic-bezier(0.4, 0, 0.2, 1)";
+  if (isDragging)  cardTransition = "none";
 
   const progressFill = `${((cardIndex + 1) / 10) * 100}%`;
+
+  // ── coin overlay — always rendered, z-index 1, behind all page content ─────
+  const coinOverlay = (
+    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 999 }}>
+      {coins.map(coin => (
+        <span
+          key={coin.id}
+          style={{
+            position:              "fixed",
+            left:                  `${coin.left}%`,
+            top:                   -60,
+            fontSize:              coin.symbol === "$" ? 17 : 20,
+            color:                 GOLD,
+            lineHeight:            1,
+            animationName:         coin.animName,
+            animationDuration:     `${coin.duration}s`,
+            animationDelay:        `${coin.delay}s`,
+            animationTimingFunction: "ease-in",
+            animationFillMode:     "forwards",
+            pointerEvents:         "none",
+            userSelect:            "none",
+          }}>
+          {coin.symbol}
+        </span>
+      ))}
+    </div>
+  );
 
   // ── BLOCKED ────────────────────────────────────────────────────────────────
   if (gamePhase === "blocked") {
     return (
-      <section id={sectionId} style={{ scrollMarginTop: 24 }}>
-        <div style={{ background: CREAM, padding: "40px 0 56px" }}>
-          <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, fontWeight: 400, color: FOREST, textAlign: "center", marginBottom: 16, letterSpacing: -0.3 }}>FinCheck</h2>
-          <p style={{ fontFamily: FONT_BODY, fontSize: 16, fontWeight: 500, color: "#1A1A18", textAlign: "center", lineHeight: 1.65, maxWidth: 400, margin: "0 auto 32px" }}>
-            Come back tomorrow for a new round!
-          </p>
-          <div style={{ maxWidth: 440, margin: "0 auto", padding: "0 16px" }}>
-            <button type="button" onClick={onHome} style={{ width: "100%", height: 48, background: CREAM, color: FOREST, border: `1px solid ${FOREST}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-              Back to Home
-            </button>
+      <>
+        {coinOverlay}
+        <section id={sectionId} style={{ scrollMarginTop: 24, position: "relative" }}>
+          <div style={{ background: CREAM, padding: "40px 0 56px" }}>
+            <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, fontWeight: 400, color: FOREST, textAlign: "center", marginBottom: 16, letterSpacing: -0.3 }}>FinCheck</h2>
+            <p style={{ fontFamily: FONT_BODY, fontSize: 16, fontWeight: 500, color: "#1A1A18", textAlign: "center", lineHeight: 1.65, maxWidth: 400, margin: "0 auto 32px" }}>
+              Come back tomorrow for a new round!
+            </p>
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "0 16px" }}>
+              <button type="button" onClick={onHome} style={{ width: "100%", height: 48, background: CREAM, color: FOREST, border: `1px solid ${FOREST}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                Back to Home
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </>
     );
   }
 
   // ── RESULTS ────────────────────────────────────────────────────────────────
   if (gamePhase === "results") {
     return (
-      <section id={sectionId} style={{ scrollMarginTop: 24 }}>
-        <div style={{ background: CREAM, padding: "40px 0 56px", fontFamily: FONT_BODY }}>
-          <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, fontWeight: 400, color: FOREST, textAlign: "center", marginBottom: 24, letterSpacing: -0.3 }}>Round complete</h2>
-          <div style={{ background: CREAM, border: `1px solid ${GOLD}`, padding: 32, maxWidth: 440, margin: "0 auto" }}>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: "#6B6558", marginBottom: 6, textAlign: "center", letterSpacing: 1.5, textTransform: "uppercase" }}>Score</p>
-            <p style={{ fontFamily: FONT_SERIF, fontSize: 48, fontWeight: 400, color: FOREST, textAlign: "center", marginBottom: 4, letterSpacing: -0.5 }}>{finalScore} / 10</p>
-
-            <div style={{ height: 1, background: `rgba(212,175,55,0.35)`, margin: "20px 0" }} />
-
-            <p style={{ fontSize: 32, fontWeight: 800, color: GOLD, textAlign: "center", marginBottom: 4 }}>+{xpEarnedThisRound} XP</p>
-            <p style={{ fontSize: 13, color: "#6B6558", textAlign: "center", marginBottom: 24 }}>Total XP <strong style={{ color: FOREST }}>{totalXpDisplay}</strong></p>
-
-            <p style={{ fontSize: 13, color: "#6B6558", textAlign: "center", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>Level</p>
-            <p style={{ fontSize: 18, textAlign: "center", marginBottom: 20, color: FOREST, fontWeight: 600 }}>{levelDisplay}</p>
-
-            <p style={{ fontSize: 16, fontWeight: 700, color: GOLD, textAlign: "center", marginBottom: 24 }}>{`🔥 ${streakDisplay}-week streak!`}</p>
-
-            <button type="button" onClick={handleShareCopy} style={{ width: "100%", height: 48, background: FOREST, color: CREAM, border: `1px solid ${FOREST}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-              {shareCopied ? "Copied! ✓" : "Share my score"}
-            </button>
-            <button type="button" onClick={onHome} style={{ marginTop: 12, width: "100%", height: 48, background: CREAM, color: FOREST, border: `1px solid ${FOREST}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-              Back to Home
-            </button>
+      <>
+        {coinOverlay}
+        <section id={sectionId} style={{ scrollMarginTop: 24, position: "relative" }}>
+          <div style={{ background: CREAM, padding: "40px 0 56px", fontFamily: FONT_BODY }}>
+            <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, fontWeight: 400, color: FOREST, textAlign: "center", marginBottom: 24, letterSpacing: -0.3 }}>Round complete</h2>
+            <div style={{ background: CREAM, border: `1px solid ${GOLD}`, padding: 32, maxWidth: 440, margin: "0 auto" }}>
+              <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: "#6B6558", marginBottom: 6, textAlign: "center", letterSpacing: 1.5, textTransform: "uppercase" }}>Score</p>
+              <p style={{ fontFamily: FONT_SERIF, fontSize: 48, fontWeight: 400, color: FOREST, textAlign: "center", marginBottom: 4, letterSpacing: -0.5 }}>{finalScore} / 10</p>
+              <div style={{ height: 1, background: "rgba(212,175,55,0.35)", margin: "20px 0" }} />
+              <p style={{ fontSize: 32, fontWeight: 800, color: GOLD, textAlign: "center", marginBottom: 4 }}>+{xpEarnedThisRound} XP</p>
+              <p style={{ fontSize: 13, color: "#6B6558", textAlign: "center", marginBottom: 24 }}>Total XP <strong style={{ color: FOREST }}>{totalXpDisplay}</strong></p>
+              <p style={{ fontSize: 13, color: "#6B6558", textAlign: "center", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>Level</p>
+              <p style={{ fontSize: 18, textAlign: "center", marginBottom: 20, color: FOREST, fontWeight: 600 }}>{levelDisplay}</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: GOLD, textAlign: "center", marginBottom: 24 }}>{`🔥 ${streakDisplay}-week streak!`}</p>
+              <button type="button" onClick={handleShareCopy} style={{ width: "100%", height: 48, background: FOREST, color: CREAM, border: `1px solid ${FOREST}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                {shareCopied ? "Copied! ✓" : "Share my score"}
+              </button>
+              <button type="button" onClick={onHome} style={{ marginTop: 12, width: "100%", height: 48, background: CREAM, color: FOREST, border: `1px solid ${FOREST}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                Back to Home
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </>
     );
   }
 
@@ -341,124 +428,126 @@ export default function FinCheck({ sectionId = "fincheck-section", onHome }) {
 
   // ── PLAYING ────────────────────────────────────────────────────────────────
   return (
-    <section id={sectionId} style={{ scrollMarginTop: 24 }}>
-      <div style={{ background: CREAM, padding: "36px 0 48px" }}>
+    <>
+      {coinOverlay}
+      <section id={sectionId} style={{ scrollMarginTop: 24, position: "relative" }}>
+        <div style={{ background: CREAM, padding: "36px 0 48px" }}>
 
-        {/* title */}
-        <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, fontWeight: 400, color: FOREST, textAlign: "center", marginBottom: 8, letterSpacing: -0.3 }}>FinCheck</h2>
-        <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: "#6B6558", textAlign: "center", marginBottom: 20 }}>Swipe left for Fraud · Swipe right for Legit</p>
+          <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, fontWeight: 400, color: FOREST, textAlign: "center", marginBottom: 8, letterSpacing: -0.3 }}>FinCheck</h2>
+          <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: "#6B6558", textAlign: "center", marginBottom: 20 }}>Swipe left for Fraud · Swipe right for Legit</p>
 
-        {/* progress bar + counter + level */}
-        <div style={{ maxWidth: 520, margin: "0 auto 6px", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: FOREST, fontWeight: 600 }}>{cardIndex + 1} / 10</span>
-          <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: FOREST, fontWeight: 600 }}>{levelDisplay}</span>
-        </div>
-        <div style={{ height: 2, background: `rgba(30,63,47,0.15)`, maxWidth: 520, margin: "0 auto 24px", padding: "0 16px", overflow: "hidden" }}>
-          <div style={{ height: "100%", width: progressFill, background: FOREST, transition: "width 0.35s ease" }} />
-        </div>
+          {/* counter + level + progress bar */}
+          <div style={{ maxWidth: 520, margin: "0 auto 6px", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: FOREST, fontWeight: 600 }}>{cardIndex + 1} / 10</span>
+            <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: FOREST, fontWeight: 600 }}>{levelDisplay}</span>
+          </div>
+          <div style={{ height: 2, background: "rgba(30,63,47,0.15)", maxWidth: 520, margin: "0 auto 24px", padding: "0 16px", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: progressFill, background: FOREST, transition: "width 0.35s ease" }} />
+          </div>
 
-        {/* card */}
-        <div style={{ position: "relative", maxWidth: 520, margin: "0 auto", padding: "0 16px", overflow: "visible" }}>
-          <div
-            id={`fincheck-card-${cardIndex}`}
-            role="presentation"
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerCancel}
-            onTransitionEnd={onCardTransitionEnd}
-            style={{
-              position: "relative",
-              background: CREAM,
-              border: `2px solid ${GOLD}`,
-              padding: "44px 40px",
-              minHeight: 320,
-              touchAction: revealed ? "auto" : "none",
-              userSelect: "none",
-              transform: cardTransform,
-              transition: cardTransition,
-              willChange: isDragging || isFlyingOut ? "transform" : "auto",
-            }}>
+          {/* card */}
+          <div style={{ position: "relative", maxWidth: 520, margin: "0 auto", padding: "0 16px", overflow: "visible" }}>
+            <div
+              id={`fincheck-card-${cardIndex}`}
+              role="presentation"
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerCancel={onPointerCancel}
+              onTransitionEnd={onCardTransitionEnd}
+              style={{
+                position:   "relative",
+                background: CREAM,
+                border:     `2px solid ${GOLD}`,
+                padding:    "44px 40px",
+                minHeight:  320,
+                touchAction:  revealed ? "auto" : "none",
+                userSelect:   "none",
+                transform:    cardTransform,
+                transition:   cardTransition,
+                willChange:   isDragging || isFlyingOut ? "transform" : "auto",
+              }}>
 
-            {/* drag stamp overlays */}
-            {(stampLeftPx > 0 || stampRightPx > 0) && !revealed ? (
-              <>
-                <div style={{ pointerEvents: "none", position: "absolute", inset: 0, background: stampLeftPx > 0 ? `rgba(153,27,27,${0.12 + stampLeftPx * 0.3})` : `rgba(212,175,55,${0.1 + stampRightPx * 0.25})`, zIndex: 1 }} />
-                <div style={{ pointerEvents: "none", position: "absolute", inset: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontFamily: FONT_BODY, fontWeight: 800, fontSize: clampStr(stampLeftPx > 0 ? stampLeftPx : stampRightPx), letterSpacing: 0.6, color: stampLeftPx > 0 ? "#991B1B" : GOLD, border: `2px solid ${stampLeftPx > 0 ? "#991B1B" : GOLD}`, padding: "10px 20px", opacity: stampLeftPx > 0 ? stampLeftPx : stampRightPx, transform: `scale(${0.85 + (stampLeftPx > 0 ? stampLeftPx : stampRightPx) * 0.2}) rotate(${stampLeftPx > 0 ? -8 : 8}deg)` }}>
-                    {stampLeftPx > 0 ? "Fraud" : "Legit"}
-                  </span>
-                </div>
-              </>
-            ) : null}
-
-            <div style={{ position: "relative", zIndex: 3 }}>
-              {/* statement — fades + shrinks after reveal */}
-              <p style={{
-                fontFamily: FONT_SERIF,
-                fontSize: revealed ? 22 : 30,
-                fontWeight: revealed ? 400 : 500,
-                color: revealed ? `rgba(30,63,47,0.4)` : FOREST,
-                lineHeight: 1.5,
-                textAlign: "center",
-                marginBottom: 0,
-                transition: "font-size 0.3s ease, color 0.3s ease",
-              }}>{card.statement}</p>
-
-              {/* fraud / legit buttons — inside card, before reveal */}
-              {!revealed ? (
-                <div style={{ display: "flex", gap: 12, marginTop: 40 }}>
-                  <button
-                    type="button"
-                    onClick={() => handleSwipeDecision(true)}
-                    style={{ flex: 1, height: 48, background: "#991B1B", color: "#fff", border: "none", borderRadius: 0, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
-                    Fraud
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSwipeDecision(false)}
-                    style={{ flex: 1, height: 48, background: FOREST, color: "#fff", border: "none", borderRadius: 0, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
-                    Legit
-                  </button>
-                </div>
+              {/* drag stamp overlays */}
+              {(stampLeftPx > 0 || stampRightPx > 0) && !revealed ? (
+                <>
+                  <div style={{ pointerEvents: "none", position: "absolute", inset: 0, background: stampLeftPx > 0 ? `rgba(153,27,27,${0.12 + stampLeftPx * 0.3})` : `rgba(212,175,55,${0.1 + stampRightPx * 0.25})`, zIndex: 1 }} />
+                  <div style={{ pointerEvents: "none", position: "absolute", inset: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: FONT_BODY, fontWeight: 800, fontSize: clampStr(stampLeftPx > 0 ? stampLeftPx : stampRightPx), letterSpacing: 0.6, color: stampLeftPx > 0 ? "#991B1B" : GOLD, border: `2px solid ${stampLeftPx > 0 ? "#991B1B" : GOLD}`, padding: "10px 20px", opacity: stampLeftPx > 0 ? stampLeftPx : stampRightPx, transform: `scale(${0.85 + (stampLeftPx > 0 ? stampLeftPx : stampRightPx) * 0.2}) rotate(${stampLeftPx > 0 ? -8 : 8}deg)` }}>
+                      {stampLeftPx > 0 ? "Fraud" : "Legit"}
+                    </span>
+                  </div>
+                </>
               ) : null}
 
-              {revealed ? (
-                <div style={{ marginTop: 24 }}>
-                  {/* correct / incorrect */}
-                  <p style={{ fontFamily: FONT_BODY, fontSize: 22, fontWeight: 800, color: FOREST, textAlign: "center", marginBottom: 20, letterSpacing: -0.2 }}>
-                    {correctForCard ? "Correct ✓" : "Not quite"}
-                  </p>
-                  {/* gold divider */}
-                  <div style={{ height: 1, background: "rgba(212,175,55,0.35)", marginBottom: 20 }} />
-                  {/* explanation */}
-                  <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: FOREST, lineHeight: 1.75, textAlign: "center" }}>{card.explanation}</p>
+              <div style={{ position: "relative", zIndex: 3 }}>
+                {/* statement */}
+                <p style={{
+                  fontFamily:   FONT_SERIF,
+                  fontSize:     revealed ? 22 : 30,
+                  fontWeight:   revealed ? 400 : 500,
+                  color:        revealed ? "rgba(30,63,47,0.4)" : FOREST,
+                  lineHeight:   1.5,
+                  textAlign:    "center",
+                  marginBottom: 0,
+                  transition:   "font-size 0.3s ease, color 0.3s ease",
+                }}>{card.statement}</p>
 
-                  {cardIndex < FINCHECK_CARDS.length - 1 ? (
-                    <button type="button" onClick={goNext} style={{ marginTop: 28, width: "100%", height: 48, background: "transparent", color: GOLD, border: `1px solid ${GOLD}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
-                      Next →
+                {/* fraud / legit buttons */}
+                {!revealed ? (
+                  <div style={{ display: "flex", gap: 12, marginTop: 40 }}>
+                    <button type="button" onClick={() => handleSwipeDecision(true)}
+                      style={{ flex: 1, height: 48, background: "#991B1B", color: "#fff", border: "none", borderRadius: 0, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
+                      Fraud
                     </button>
-                  ) : (
-                    <button type="button" onClick={finishRound} style={{ marginTop: 28, width: "100%", height: 48, background: "transparent", color: GOLD, border: `1px solid ${GOLD}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
-                      See results →
+                    <button type="button" onClick={() => handleSwipeDecision(false)}
+                      style={{ flex: 1, height: 48, background: FOREST, color: "#fff", border: "none", borderRadius: 0, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
+                      Legit
                     </button>
-                  )}
-                </div>
-              ) : null}
+                  </div>
+                ) : null}
+
+                {/* reveal */}
+                {revealed ? (
+                  <div style={{ marginTop: 24 }}>
+                    <p style={{ fontFamily: FONT_BODY, fontSize: 48, fontWeight: 800, color: GOLD, textAlign: "center", marginBottom: 16, letterSpacing: 0.5 }}>
+                      {verdictLabel}
+                    </p>
+                    <p style={{ fontFamily: FONT_BODY, fontSize: 22, fontWeight: 800, color: FOREST, textAlign: "center", marginBottom: 20, letterSpacing: -0.2 }}>
+                      {correctForCard ? "Correct ✓" : "Not quite"}
+                    </p>
+                    <div style={{ height: 1, background: "rgba(212,175,55,0.35)", marginBottom: 20 }} />
+                    <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: FOREST, lineHeight: 1.75, textAlign: "center" }}>{card.explanation}</p>
+                    {cardIndex < FINCHECK_CARDS.length - 1 ? (
+                      <button type="button" onClick={goNext}
+                        style={{ marginTop: 28, width: "100%", height: 48, background: "transparent", color: GOLD, border: `1px solid ${GOLD}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
+                        Next →
+                      </button>
+                    ) : (
+                      <button type="button" onClick={finishRound}
+                        style={{ marginTop: 28, width: "100%", height: 48, background: "transparent", color: GOLD, border: `1px solid ${GOLD}`, borderRadius: 0, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>
+                        See results →
+                      </button>
+                    )}
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* back to home */}
-        <div style={{ maxWidth: 520, margin: "36px auto 0", padding: "0 16px", textAlign: "center" }}>
-          <button type="button" onClick={onHome} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: "#6B6558", padding: "10px 0", minHeight: 44 }}
-            onMouseEnter={e => { e.currentTarget.style.color = FOREST; }}
-            onMouseLeave={e => { e.currentTarget.style.color = "#6B6558"; }}>
-            ← Back to Home
-          </button>
+          {/* back to home */}
+          <div style={{ maxWidth: 520, margin: "36px auto 0", padding: "0 16px", textAlign: "center" }}>
+            <button type="button" onClick={onHome}
+              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: "#6B6558", padding: "10px 0", minHeight: 44 }}
+              onMouseEnter={e => { e.currentTarget.style.color = FOREST; }}
+              onMouseLeave={e => { e.currentTarget.style.color = "#6B6558"; }}>
+              ← Back to Home
+            </button>
+          </div>
+
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
 
