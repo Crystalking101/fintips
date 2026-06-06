@@ -17,17 +17,35 @@ RED_FLAGS: [list each flag on its own line starting with a dash]
 WHAT_TO_DO: [list each step on its own line starting with a number and period]
 Write in plain English for a non-technical audience. Never use jargon.`;
 
+function stripMarkdown(str) {
+  return str.replace(/\*+/g, "").trim();
+}
+
 function parseAIResponse(text) {
   const section = (label) => {
     const re = new RegExp(`${label}:\\s*([\\s\\S]*?)(?=\\n[A-Z_]+:|$)`);
     const m  = text.match(re);
     return m ? m[1].trim() : "";
   };
-  const verdict    = section("VERDICT").toUpperCase().includes("FRAUD") ? "FRAUD" : "LEGIT";
-  const riskScore  = section("RISK_SCORE").replace(/[^\d.]/g, "") || "—";
-  const riskLabel  = section("RISK_LABEL") || "Unknown risk";
-  const redFlags   = section("RED_FLAGS").split("\n").map(l => l.replace(/^[-•]\s*/, "").trim()).filter(Boolean);
-  const whatToDo   = section("WHAT_TO_DO").split("\n").map(l => l.replace(/^\d+[.)]\s*/, "").trim()).filter(Boolean);
+
+  const verdict   = section("VERDICT").toUpperCase().includes("FRAUD") ? "FRAUD" : "LEGIT";
+  const riskLabel = stripMarkdown(section("RISK_LABEL")) || "Unknown risk";
+
+  // grab only the first number found
+  const rawScore  = section("RISK_SCORE");
+  const scoreMatch = rawScore.match(/[\d.]+/);
+  const riskScore  = scoreMatch ? scoreMatch[0] : "—";
+
+  const redFlags = section("RED_FLAGS")
+    .split("\n")
+    .map(l => stripMarkdown(l.replace(/^[-•*]\s*/, "").replace(/^\d+[.)]\s*/, "")))
+    .filter(l => l.length > 0);
+
+  const whatToDo = section("WHAT_TO_DO")
+    .split("\n")
+    .map(l => stripMarkdown(l.replace(/^\d+[.)]\s*/, "").replace(/^[-•*]\s*/, "")))
+    .filter(l => l.length > 0);
+
   return { verdict, riskScore, riskLabel, redFlags, whatToDo };
 }
 
