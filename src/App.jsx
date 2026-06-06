@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import FinCheck from "./components/FinCheck.jsx";
 import FinCheckHub from "./components/FinCheckHub.jsx";
+import FinCheckScanner from "./components/FinCheckScanner.jsx";
 
 // ─── OPENROUTER CONFIG ────────────────────────────────────────────────────────
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
@@ -941,6 +942,11 @@ Write 3 tips. Each tip is ONE sentence max. Real numbers only. No fluff. Plain p
                 onScanner={() => go("scanner")}
                 onHome={() => goHome()}
               />
+            </div>
+          )}
+          {screen === "scanner" && (
+            <div className="sg">
+              <FinCheckScanner onBack={() => go("fincheck-hub")} />
             </div>
           )}
           {screen === "fincheck" && (
