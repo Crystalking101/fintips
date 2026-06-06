@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import FinCheck from "./components/FinCheck.jsx";
+import FinCheckHub from "./components/FinCheckHub.jsx";
 
 // ─── OPENROUTER CONFIG ────────────────────────────────────────────────────────
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
@@ -743,7 +744,7 @@ Write 3 tips. Each tip is ONE sentence max. Real numbers only. No fluff. Plain p
           onGetAdvice={() => { setShowSplash(false); setQuizAnswers({ goal: "", startingPoint: "", challenge: "" }); go("quiz3"); }}
           onWriteAdvice={() => { setShowSplash(false); go("writeadvice"); }}
           onViewAdvice={() => { setShowSplash(false); go("community"); }}
-          onPlayFinCheck={() => { setShowSplash(false); go("fincheck"); }}
+          onPlayFinCheck={() => { setShowSplash(false); go("fincheck-hub"); }}
         />
       )}
 
@@ -905,7 +906,7 @@ Write 3 tips. Each tip is ONE sentence max. Real numbers only. No fluff. Plain p
               </div>
               <button
                 type="button"
-                onClick={() => go("fincheck")}
+                onClick={() => go("fincheck-hub")}
                 style={{
                   width: "100%",
                   marginTop: 10,
@@ -933,9 +934,18 @@ Write 3 tips. Each tip is ONE sentence max. Real numbers only. No fluff. Plain p
           )}
 
           {/* FINCHECK */}
+          {screen === "fincheck-hub" && (
+            <div className="sg">
+              <FinCheckHub
+                onPlayGame={() => go("fincheck")}
+                onScanner={() => go("scanner")}
+                onHome={() => goHome()}
+              />
+            </div>
+          )}
           {screen === "fincheck" && (
             <div className="sg">
-              <FinCheck onHome={() => { goHome(); }} />
+              <FinCheck onHome={() => go("fincheck-hub")} />
             </div>
           )}
 
