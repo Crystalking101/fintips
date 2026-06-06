@@ -117,7 +117,7 @@ export default function FinCheckScanner({ onBack }) {
       }
 
       const model = activeTab === "upload"
-        ? "google/gemini-flash-1.5"
+        ? "google/gemini-2.0-flash-001"
         : "meta-llama/llama-3.1-8b-instruct";
 
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
